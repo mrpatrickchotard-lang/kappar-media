@@ -1,0 +1,117 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Josefin+Sans:wght@100;200;300;400;500;600;700&display=swap');
+
+:root {
+  /* Kappar Brand Colors */
+  --mt-disc: #0c2e2e;
+  --mt-symbol: #c8c0a0;
+  --mt-tag-dark: #5a8a80;
+  --mt-tag-light: #3a6a5e;
+  
+  --em-disc: #4aba8a;
+  --em-symbol: #0a0a0a;
+  
+  --text-light: #e8e4df;
+  --text-dark: #0a0a0a;
+  --bg-dark: #08080a;
+  --bg-card: #0f0f12;
+  --border: #1a1a1e;
+  
+  --sec-sand: #d8cdb8;
+  --sec-slate: #6b7280;
+  --sec-warm: #a89880;
+  --sec-muted-teal: #2a5a50;
+  --sec-cream: #f5f3ef;
+  --sec-charcoal: #2a2a2a;
+  
+  --fn-success: #4aba8a;
+  --fn-warning: #d4a030;
+  --fn-error: #c45a5a;
+  --fn-info: #5a9aba;
+  
+  /* Theme mapping */
+  --background: var(--bg-dark);
+  --foreground: var(--text-light);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-mt-disc: var(--mt-disc);
+  --color-mt-symbol: var(--mt-symbol);
+  --color-em-disc: var(--em-disc);
+  --color-em-symbol: var(--em-symbol);
+  --color-bg-card: var(--bg-card);
+  --color-border: var(--border);
+  --color-sec-sand: var(--sec-sand);
+  --color-sec-slate: var(--sec-slate);
+  --color-sec-warm: var(--sec-warm);
+  --color-sec-cream: var(--sec-cream);
+  
+  --font-display: 'Josefin Sans', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.font-display {
+  font-family: 'Josefin Sans', sans-serif;
+}
+
+.font-body {
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Article content styles */
+.article-content h2 {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.article-content p {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: #a0a0a0;
+  margin-bottom: 1.5rem;
+}
+
+.article-content ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1.5rem;
+}
+
+.article-content li {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: #a0a0a0;
+  padding-left: 1.5rem;
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.article-content li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  width: 6px;
+  height: 6px;
+  background: var(--em-disc);
+  border-radius: 50%;
+}
+
+.article-content strong {
+  color: var(--text-light);
+  font-weight: 500;
+}
