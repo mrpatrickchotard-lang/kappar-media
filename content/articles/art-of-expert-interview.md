@@ -4,6 +4,7 @@ excerpt: "Lessons from decades of business journalism on extracting insights fro
 date: "2026-02-15"
 author: "Kappar Editorial"
 category: "Business"
+tags: ["interview", "journalism", "expertise", "media", "storytelling"]
 featured: false
 ---
 

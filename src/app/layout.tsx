@@ -13,6 +13,19 @@ export const metadata: Metadata = {
     description: "Where business leaders find their edge. Insights, interviews, and expert perspectives from Dubai to the world.",
     type: "website",
     locale: "en_US",
+    siteName: "Kappar Media",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kappar Media | Forward Media for Business Leaders",
+    description: "Where business leaders find their edge.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "https://kappar.tv",
   },
 };
 
@@ -22,8 +35,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased min-h-screen bg-[#08080a]">
+    <html lang="en" data-theme="dark">
+      <body className="antialiased min-h-screen bg-primary">
         <Header />
         <main className="pt-20">
           {children}

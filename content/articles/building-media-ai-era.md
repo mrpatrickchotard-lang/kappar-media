@@ -4,6 +4,7 @@ excerpt: "How artificial intelligence is reshaping content creation, distributio
 date: "2026-02-18"
 author: "Kappar Editorial"
 category: "Tech"
+tags: ["ai", "media", "content", "technology", "innovation"]
 featured: true
 coverImage: "/images/hero-ai-media.jpg"
 ---

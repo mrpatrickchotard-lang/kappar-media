@@ -4,6 +4,7 @@ excerpt: "How Dubai's regulatory framework is attracting global fintech players 
 date: "2026-02-20"
 author: "Kappar Editorial"
 category: "Business"
+tags: ["fintech", "dubai", "regulation", "middle east", "banking"]
 featured: true
 coverImage: "/images/hero-fintech.jpg"
 ---

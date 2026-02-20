@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getArticleBySlug, getAllArticles } from '@/lib/content';
+import { getArticleBySlug, getAllArticles, getRelatedArticles } from '@/lib/content';
+import { TagList } from '@/components/TagCloud';
 
 interface ArticlePageProps {
   params: { slug: string };
@@ -20,13 +21,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     notFound();
   }
   
+  const relatedArticles = await getRelatedArticles(params.slug, 3);
+  
   return (
     <article className="min-h-screen pt-32 pb-24">
-      <div className="max-w-3xl mx-auto px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto px-6 lg:px-8">
         {/* Back Link */}
         <Link
           href="/content"
-          className="inline-flex items-center gap-2 text-sm text-[#666] hover:text-[#c8c0a0] transition-colors mb-12"
+          className="inline-flex items-center gap-2 text-sm text-tertiary hover:text-[var(--accent-gold)] transition-colors mb-8"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -34,45 +37,117 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           Back to Content
         </Link>
         
-        {/* Category */}
-        <span className="inline-block px-3 py-1 bg-[#0c2e2e] text-[#c8c0a0] text-xs font-body tracking-wider uppercase rounded-full mb-6">
-          {article.category}
-        </span>
+        {/* Meta */}
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          <span className="px-3 py-1 accent-primary text-[var(--accent-gold)] text-xs font-body tracking-wider uppercase rounded-full">
+            {article.category}
+          </span>
+          {article.featured && (
+            <span className="px-3 py-1 bg-[var(--accent-emerald)] text-white text-xs font-body tracking-wider uppercase rounded-full">
+              Featured
+            </span>
+          )}
+        </div>
         
         {/* Title */}
-        <h1 className="font-display text-4xl md:text-5xl font-light tracking-wide text-[#e8e4df] mb-6">
+        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-light tracking-wide text-primary mb-6">
           {article.title}
         </h1>
         
-        {/* Meta */}
-        <div className="flex items-center gap-4 text-sm text-[#666] mb-12 pb-12 border-b border-[#1a1a1e]">
-          <span>{article.author}</span>
-          <span className="w-1 h-1 rounded-full bg-[#555]"></span>
-          <span>{new Date(article.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+        {/* Excerpt */}
+        <p className="text-xl text-secondary leading-relaxed mb-8 max-w-3xl">
+          {article.excerpt}
+        </p>
+        
+        {/* Author & Date */}
+        <div className="flex flex-wrap items-center gap-4 text-sm text-tertiary mb-8 pb-8 border-b border-primary">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full accent-primary flex items-center justify-center">
+              <span className="text-[var(--accent-gold)] font-display text-sm">{article.author.charAt(0)}</span>
+            </div>
+            <div>
+              <p className="text-primary font-medium">{article.author}</p>
+              <p className="text-tertiary">{new Date(article.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+            </div>
+          </div>          
+          {article.readingTime && (
+            <>
+              <span className="hidden sm:block w-1 h-1 rounded-full bg-tertiary"></span>
+              <span>{article.readingTime} min read</span>
+            </>
+          )}
         </div>
+        
+        {/* Tags */}
+        {article.tags.length > 0 && (
+          <div className="mb-12">
+            <TagList tags={article.tags} />
+          </div>
+        )}
         
         {/* Content */}
         <div
-          className="article-content"
+          className="article-content max-w-3xl"
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
         
         {/* Share */}
-        <div className="mt-16 pt-8 border-t border-[#1a1a1e]">
-          <p className="text-sm text-[#666] mb-4">Share this article</p>
+        <div className="mt-16 pt-8 border-t border-primary">
+          <p className="text-sm text-tertiary mb-4">Share this article</p>
           <div className="flex gap-3">
-            <button className="p-3 bg-[#0f0f12] border border-[#1a1a1e] rounded-lg hover:border-[#2a2a30] transition-colors">
-              <svg className="w-5 h-5 text-[#888]" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+            <a 
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(`https://kappar.tv/content/${article.slug}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 bg-card border border-primary rounded-lg hover:border-secondary transition-colors"
+            >
+              <svg className="w-5 h-5 text-tertiary" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
               </svg>
-            </button>
-            <button className="p-3 bg-[#0f0f12] border border-[#1a1a1e] rounded-lg hover:border-[#2a2a30] transition-colors">
-              <svg className="w-5 h-5 text-[#888]" fill="currentColor" viewBox="0 0 24 24">
+            </a>
+            <a 
+              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://kappar.tv/content/${article.slug}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 bg-card border border-primary rounded-lg hover:border-secondary transition-colors"
+            >
+              <svg className="w-5 h-5 text-tertiary" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+              </svg>
+            </a>
+            <button 
+              onClick={() => navigator.clipboard.writeText(`https://kappar.tv/content/${article.slug}`)}
+              className="p-3 bg-card border border-primary rounded-lg hover:border-secondary transition-colors"
+              aria-label="Copy link"
+            >
+              <svg className="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
             </button>
           </div>
         </div>
+        
+        {/* Related Articles */}
+        {relatedArticles.length > 0 && (
+          <div className="mt-16 pt-8 border-t border-primary">
+            <h3 className="font-display text-xl font-light tracking-wide text-primary mb-8">
+              Related Reading
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              {relatedArticles.map((related) => (
+                <Link key={related.slug} href={`/content/${related.slug}`} className="group">
+                  <article className="bg-card border border-primary rounded-xl p-6 hover:border-secondary transition-all">
+                    <span className="text-xs text-[var(--accent-gold)] uppercase tracking-wider">{related.category}</span>
+                    <h4 className="font-display text-lg font-light text-primary group-hover:text-[var(--accent-gold)] transition-colors mt-2 mb-3">
+                      {related.title}
+                    </h4>
+                    <p className="text-sm text-tertiary line-clamp-2">{related.excerpt}</p>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </article>
   );
