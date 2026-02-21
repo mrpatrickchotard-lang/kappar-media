@@ -10,11 +10,32 @@ export default function ContactPage() {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Integrate with email service
-    setSubmitted(true);
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formState),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to send message');
+      }
+
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -80,54 +101,33 @@ export default function ContactPage() {
             ) : (
               <form onSubmit={handleSubmit} className="rounded-2xl p-8" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}>
                 <div className="space-y-6">
+                  {error && (
+                    <div className="p-4 rounded-xl text-sm" style={{ backgroundColor: 'rgba(196,90,90,0.1)', border: '1px solid rgba(196,90,90,0.3)', color: '#c45a5a' }}>
+                      {error}
+                    </div>
+                  )}
                   <div>
                     <label htmlFor="name" className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Name</label>
-                    <input
-                      type="text"
-                      id="name"
-                      required
-                      value={formState.name}
+                    <input type="text" id="name" required value={formState.name}
                       onChange={(e) => setFormState({ ...formState, name: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl font-body focus:outline-none transition-colors"
-                      style={{
-                        backgroundColor: 'var(--bg-primary)',
-                        border: '1px solid var(--border-primary)',
-                        color: 'var(--text-primary)',
-                      }}
-                      placeholder="Your name"
-                    />
+                      style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }}
+                      placeholder="Your name" />
                   </div>
                   <div>
                     <label htmlFor="email" className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      required
-                      value={formState.email}
+                    <input type="email" id="email" required value={formState.email}
                       onChange={(e) => setFormState({ ...formState, email: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl font-body focus:outline-none transition-colors"
-                      style={{
-                        backgroundColor: 'var(--bg-primary)',
-                        border: '1px solid var(--border-primary)',
-                        color: 'var(--text-primary)',
-                      }}
-                      placeholder="you@company.com"
-                    />
+                      style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }}
+                      placeholder="you@company.com" />
                   </div>
                   <div>
                     <label htmlFor="subject" className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Subject</label>
-                    <select
-                      id="subject"
-                      required
-                      value={formState.subject}
+                    <select id="subject" required value={formState.subject}
                       onChange={(e) => setFormState({ ...formState, subject: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl font-body focus:outline-none transition-colors appearance-none cursor-pointer"
-                      style={{
-                        backgroundColor: 'var(--bg-primary)',
-                        border: '1px solid var(--border-primary)',
-                        color: 'var(--text-primary)',
-                      }}
-                    >
+                      style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }}>
                       <option value="">Select a subject</option>
                       <option value="general">General Inquiry</option>
                       <option value="partnership">Partnership Opportunity</option>
@@ -138,31 +138,16 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <label htmlFor="message" className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Message</label>
-                    <textarea
-                      id="message"
-                      required
-                      rows={6}
-                      value={formState.message}
+                    <textarea id="message" required rows={6} value={formState.message}
                       onChange={(e) => setFormState({ ...formState, message: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl font-body focus:outline-none transition-colors resize-none"
-                      style={{
-                        backgroundColor: 'var(--bg-primary)',
-                        border: '1px solid var(--border-primary)',
-                        color: 'var(--text-primary)',
-                      }}
-                      placeholder="Tell us what's on your mind..."
-                    />
+                      style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }}
+                      placeholder="Tell us what's on your mind..." />
                   </div>
-                  <button
-                    type="submit"
-                    className="w-full px-8 py-4 font-body rounded-xl transition-colors"
-                    style={{
-                      backgroundColor: 'var(--accent-primary)',
-                      color: '#f5f3ef',
-                      border: '1px solid var(--teal-light, #3aaa9a)',
-                    }}
-                  >
-                    Send Message
+                  <button type="submit" disabled={loading}
+                    className="w-full px-8 py-4 font-body rounded-xl transition-colors disabled:opacity-50"
+                    style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef', border: '1px solid var(--teal-light, #3aaa9a)' }}>
+                    {loading ? 'Sending...' : 'Send Message'}
                   </button>
                 </div>
               </form>

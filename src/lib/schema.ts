@@ -66,3 +66,21 @@ export const users = pgTable('users', {
   role: varchar('role', { length: 50 }).notNull().default('admin'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+
+export const contactSubmissions = pgTable('contact_submissions', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull(),
+  subject: varchar('subject', { length: 100 }).notNull(),
+  message: text('message').notNull(),
+  status: varchar('status', { length: 50 }).notNull().default('new'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const newsletterSubscribers = pgTable('newsletter_subscribers', {
+  id: serial('id').primaryKey(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  status: varchar('status', { length: 50 }).notNull().default('active'),
+  source: varchar('source', { length: 100 }).notNull().default('website'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
