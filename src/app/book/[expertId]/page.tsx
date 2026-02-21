@@ -20,7 +20,9 @@ export default function BookingPage({ params }: { params: { expertId: string } }
     topic: '',
   });
   const [loading, setLoading] = useState(false);
-  
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+
   if (!expert || !slot) {
     return (
       <div className="min-h-screen pt-32 pb-24 flex items-center justify-center">
@@ -41,12 +43,37 @@ export default function BookingPage({ params }: { params: { expertId: string } }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulate booking creation
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Redirect to confirmation
-    router.push(`/book/confirm?expert=${expert.id}&slot=${slot.id}`);
+    setError('');
+
+    try {
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          expertId: expert.id,
+          slotId: slot.id,
+          clientName: formData.name,
+          clientEmail: formData.email,
+          clientCompany: formData.company,
+          topic: formData.topic,
+          date: slot.date,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          hourlyRate: expert.hourlyRate,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to create booking');
+      }
+
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
   
   return (
@@ -60,7 +87,26 @@ export default function BookingPage({ params }: { params: { expertId: string } }
           {/* Booking Form */}
           
           <div className="bg-card border border-primary rounded-2xl p-6">
+            {success ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ background: 'rgba(42,138,122,0.2)' }}>
+                  <svg className="w-8 h-8" style={{ color: 'var(--teal, #2a8a7a)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="font-display text-2xl font-light tracking-wide text-primary mb-3">Booking Confirmed</h3>
+                <p className="text-secondary mb-6">We've sent a confirmation to your email. You'll receive meeting details shortly.</p>
+                <button onClick={() => router.push('/experts')} className="px-6 py-3 rounded-xl transition-colors" style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef' }}>
+                  Back to Experts
+                </button>
+              </div>
+            ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="p-4 rounded-xl text-sm" style={{ backgroundColor: 'rgba(196,90,90,0.1)', border: '1px solid rgba(196,90,90,0.3)', color: '#c45a5a' }}>
+                  {error}
+                </div>
+              )}
               <div>
                 <label className="block text-sm text-secondary mb-2">Full Name *</label>                
                 <input
@@ -114,8 +160,9 @@ export default function BookingPage({ params }: { params: { expertId: string } }
                 className="w-full py-3 accent-primary text-[var(--accent-gold)] rounded-lg hover:bg-[var(--accent-secondary)] transition-colors disabled:opacity-50"
               >
                 {loading ? 'Processing...' : 'Continue to Payment'}
-              </button>            
-    </form>          
+              </button>
+    </form>
+    )}
     </div>          
           
           {/* Booking Summary */}
