@@ -1,15 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
-
-// Simple admin user - in production, use database
-const ADMIN_USER = {
-  id: "1",
-  email: "admin@kappar.tv",
-  // Password: kappar2026
-  passwordHash: "$2a$10$YourHashHere",
-  name: "Kappar Admin",
-};
+import { getUserByEmail, verifyPassword } from "./db-operations";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -24,21 +15,20 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // Check email
-        if (credentials.email !== ADMIN_USER.email) {
+        const user = await getUserByEmail(credentials.email);
+        if (!user) {
           return null;
         }
 
-        // Verify password - simple check for demo
-        // In production: bcrypt.compare(credentials.password, ADMIN_USER.passwordHash)
-        if (credentials.password !== "kappar2026") {
+        const isValid = await verifyPassword(credentials.password, user.passwordHash);
+        if (!isValid) {
           return null;
         }
 
         return {
-          id: ADMIN_USER.id,
-          email: ADMIN_USER.email,
-          name: ADMIN_USER.name,
+          id: user.id.toString(),
+          email: user.email,
+          name: user.name,
         };
       },
     }),
