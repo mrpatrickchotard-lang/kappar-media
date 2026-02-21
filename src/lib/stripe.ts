@@ -1,12 +1,22 @@
 import Stripe from 'stripe';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-01-28.clover',
-});
+let _stripe: Stripe | null = null;
+
+function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2026-01-28.clover',
+    });
+  }
+  return _stripe;
+}
 
 export async function createPaymentIntent(amount: number, currency: string = 'usd', metadata: Record<string, string> = {}) {
-  return stripe.paymentIntents.create({
-    amount: amount * 100, // Convert to cents
+  return getStripe().paymentIntents.create({
+    amount: amount * 100,
     currency,
     automatic_payment_methods: { enabled: true },
     metadata,
@@ -14,16 +24,17 @@ export async function createPaymentIntent(amount: number, currency: string = 'us
 }
 
 export async function capturePayment(paymentIntentId: string) {
-  return stripe.paymentIntents.capture(paymentIntentId);
+  return getStripe().paymentIntents.capture(paymentIntentId);
 }
 
 export async function cancelPayment(paymentIntentId: string) {
-  return stripe.paymentIntents.cancel(paymentIntentId);
+  return getStripe().paymentIntents.cancel(paymentIntentId);
 }
 
 export async function createRefund(paymentIntentId: string, amount?: number) {
-  return stripe.refunds.create({
+  return getStripe().refunds.create({
     payment_intent: paymentIntentId,
     amount: amount ? amount * 100 : undefined,
   });
 }
+
