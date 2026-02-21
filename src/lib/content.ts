@@ -65,6 +65,54 @@ const articles: Article[] = [
     featured: true,
     readingTime: 7,
   },
+  {
+    slug: 'personal-branding-for-executives',
+    title: 'Personal Branding for Executives: Standing Out in 2026',
+    excerpt: 'How C-suite leaders can build authentic personal brands that drive business growth and attract top talent.',
+    content: '<h2>The Executive Brand Imperative</h2><p>In an era where talent and capital flow to people they trust, executive personal branding is no longer optional. The most successful business leaders understand that their personal reputation is inseparable from their company\'s brand.</p><h3>Building Your Platform</h3><p>Start with thought leadership content that showcases your unique perspective. LinkedIn remains the primary platform for executive visibility, but podcasts and speaking engagements amplify your reach. The key is consistency and authenticity.</p><h3>Measuring Impact</h3><p>Track engagement metrics, inbound opportunities, and brand sentiment. The best executive brands generate tangible business outcomes: recruitment advantages, partnership opportunities, and media coverage.</p>',
+    date: '2026-01-22T08:00:00Z',
+    author: 'Aisha Patel',
+    category: 'Marketing',
+    tags: ['Personal Branding', 'Executive Leadership', 'Marketing Strategy', 'LinkedIn'],
+    featured: false,
+    readingTime: 5,
+  },
+  {
+    slug: 'content-marketing-mena-market',
+    title: 'Content Marketing Strategies for the MENA Market',
+    excerpt: 'Navigating cultural nuances and digital habits to create compelling content for Middle Eastern audiences.',
+    content: '<h2>Understanding the MENA Audience</h2><p>The Middle East and North Africa presents unique opportunities and challenges for content marketers. With a young, digitally connected population and high social media penetration, the region is ripe for innovative content strategies.</p><h3>Cultural Sensitivity</h3><p>Successful content marketing in MENA requires deep understanding of cultural values, religious observances, and local business customs. Arabic-first content strategies outperform translated content by a significant margin.</p><h3>Platform Preferences</h3><p>While Instagram and TikTok dominate consumer engagement, LinkedIn and Twitter/X are essential for B2B content. WhatsApp and Telegram are increasingly important distribution channels.</p>',
+    date: '2026-01-18T12:00:00Z',
+    author: 'Sarah Chen',
+    category: 'Marketing',
+    tags: ['Content Marketing', 'MENA', 'Digital Strategy', 'Social Media'],
+    featured: false,
+    readingTime: 6,
+  },
+  {
+    slug: 'remote-work-dubai-hub',
+    title: 'Dubai as a Global Remote Work Hub: The New Reality',
+    excerpt: 'Why Dubai is attracting digital nomads and remote workers from around the world, and what it means for business.',
+    content: '<h2>The Dubai Digital Nomad Boom</h2><p>Dubai\'s strategic time zone, world-class infrastructure, and progressive visa policies have made it one of the top destinations for remote workers and digital nomads. The city\'s virtual working program and golden visa initiatives are reshaping its workforce.</p><h3>Infrastructure Advantages</h3><p>From co-working spaces in DIFC to beachside cafes with reliable Wi-Fi, Dubai offers a unique blend of productivity and lifestyle. The city\'s tax-free environment and growing startup ecosystem make it attractive for entrepreneurs.</p><h3>Community and Networking</h3><p>Dubai\'s diverse expat community creates natural networking opportunities. Regular meetups, conferences, and social events make it easy to build professional relationships across industries and cultures.</p>',
+    date: '2026-01-12T15:00:00Z',
+    author: 'James O\'Connor',
+    category: 'Lifestyle',
+    tags: ['Remote Work', 'Dubai', 'Digital Nomads', 'Lifestyle'],
+    featured: false,
+    readingTime: 5,
+  },
+  {
+    slug: 'wellness-productivity-business-leaders',
+    title: 'The Wellness-Productivity Connection for Business Leaders',
+    excerpt: 'How top executives are integrating wellness practices into their routines to maintain peak performance.',
+    content: '<h2>Performance Through Wellness</h2><p>The most effective business leaders have discovered that sustainable high performance requires intentional wellness practices. From sleep optimization to structured exercise, the connection between physical health and business outcomes is well-documented.</p><h3>Morning Routines</h3><p>Successful executives increasingly prioritize morning routines that include meditation, exercise, and focused planning. These rituals create mental clarity and resilience that compound throughout the day.</p><h3>The Recovery Imperative</h3><p>Just as athletes plan recovery periods, business leaders must schedule downtime. The best performers understand that rest is not a luxury but a strategic investment in long-term productivity and decision-making quality.</p>',
+    date: '2026-01-08T10:00:00Z',
+    author: 'Elena Petrova',
+    category: 'Lifestyle',
+    tags: ['Wellness', 'Productivity', 'Leadership', 'Executive Health'],
+    featured: false,
+    readingTime: 4,
+  },
 ];
 
 export async function getAllArticles(): Promise<Article[]> {
@@ -122,4 +170,3 @@ export async function getRelatedArticles(currentSlug: string, limit: number = 3)
     .slice(0, limit)
     .map(s => s.article);
 }
-
