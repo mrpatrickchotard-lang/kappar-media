@@ -26,7 +26,7 @@ export function Footer() {
                 <span className="font-display text-2xl font-light tracking-[0.4em] uppercase text-primary">
                   KAPPAR
                 </span>
-                <span className="text-[10px] tracking-[0.5em] uppercase text-[var(--mt-tag-dark)]">
+                <span className="text-[10px] tracking-[0.5em] uppercase" style={{ color: 'var(--teal)' }}>
                   MEDIA
                 </span>
               </div>

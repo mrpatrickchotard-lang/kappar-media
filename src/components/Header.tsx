@@ -27,7 +27,7 @@ export function Header() {
               <span className="font-display text-xl font-light tracking-[0.35em] uppercase text-primary">
                 KAPPAR
               </span>
-              <span className="text-[9px] tracking-[0.45em] uppercase text-[var(--mt-tag-dark)]">
+              <span className="text-[9px] tracking-[0.45em] uppercase" style={{ color: 'var(--teal)' }}>
                 MEDIA
               </span>
             </div>
@@ -48,7 +48,8 @@ export function Header() {
               <ThemeToggle />
               <Link
                 href="/newsletter"
-                className="px-5 py-2.5 accent-primary text-[var(--accent-gold)] text-sm font-body rounded-lg hover:bg-[var(--accent-secondary)] transition-colors"
+                className="px-5 py-2.5 text-sm font-body rounded-lg transition-colors"
+                style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef' }}
               >
                 Subscribe
               </Link>
@@ -90,7 +91,8 @@ export function Header() {
               ))}
               <Link
                 href="/newsletter"
-                className="mt-4 px-5 py-3 accent-primary text-[var(--accent-gold)] text-center text-sm font-body rounded-lg"
+                className="mt-4 px-5 py-3 text-center text-sm font-body rounded-lg"
+                style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef' }}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Subscribe

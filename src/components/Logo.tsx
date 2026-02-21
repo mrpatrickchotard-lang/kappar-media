@@ -6,14 +6,14 @@ interface LogoProps {
 
 export function Logo({ className = '', variant = 'teal', size = 40 }: LogoProps) {
   const colors = {
-    teal: { disc: '#0c2e2e', symbol: '#c8c0a0' },
+    teal: { disc: '#2a8a7a', symbol: '#f5f3ef' },
     emerald: { disc: '#4aba8a', symbol: '#0a0a0a' },
-    light: { disc: '#ffffff', symbol: '#0a0a0a' },
+    light: { disc: '#ffffff', symbol: '#2a8a7a' },
     dark: { disc: '#0a0a0a', symbol: '#ffffff' },
   };
-  
+
   const { disc, symbol } = colors[variant];
-  
+
   return (
     <svg
       width={size}
@@ -40,29 +40,26 @@ interface LogoWithTextProps extends LogoProps {
   showTagline?: boolean;
 }
 
-export function LogoWithText({ 
-  className = '', 
-  variant = 'teal', 
+export function LogoWithText({
+  className = '',
+  variant = 'teal',
   size = 48,
-  showTagline = true 
+  showTagline = true
 }: LogoWithTextProps) {
-  const textColor = variant === 'emerald' ? '#0a0a0a' : '#e8e4df';
-  const taglineColor = variant === 'teal' ? '#5a8a80' : '#3a6a5e';
-  
   return (
     <div className={`flex items-center gap-5 ${className}`}>
       <Logo variant={variant} size={size} />
       <div className="flex flex-col">
-        <span 
+        <span
           className="font-display text-2xl font-light tracking-[0.4em] uppercase"
-          style={{ color: textColor }}
+          style={{ color: 'var(--text-primary)' }}
         >
           KAPPAR
         </span>
         {showTagline && (
-          <span 
+          <span
             className="text-[10px] tracking-[0.5em] uppercase font-body"
-            style={{ color: taglineColor }}
+            style={{ color: 'var(--teal)' }}
           >
             MEDIA
           </span>
