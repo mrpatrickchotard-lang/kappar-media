@@ -56,7 +56,7 @@ export async function bookSlot(slotId: string, bookingId: string) {
 }
 
 // Booking operations
-export async function createBooking(data: typeof bookings.$inferInsert) {
+export async function createBooking(data: Omit<typeof bookings.$inferInsert, 'bookingId'>) {
   const bookingId = nanoid(10);
   const result = await db.insert(bookings).values({ ...data, bookingId }).returning();
   return result[0];
@@ -93,3 +93,4 @@ export async function getUserByEmail(email: string) {
 export async function verifyPassword(password: string, hash: string) {
   return bcrypt.compare(password, hash);
 }
+
