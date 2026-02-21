@@ -35,10 +35,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="dark">
-      <body className="antialiased min-h-screen bg-primary">
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            try {
+              var saved = localStorage.getItem('kappar-theme');
+              var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+              document.documentElement.setAttribute('data-theme', theme);
+            } catch(e) {}
+          })();
+        `}} />
+      </head>
+      <body className="antialiased min-h-screen" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         <Header />
-        <main className="pt-20">
+        <main>
           {children}
         </main>
         <Footer />

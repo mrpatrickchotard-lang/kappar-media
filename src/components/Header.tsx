@@ -17,7 +17,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-primary/90 backdrop-blur-md border-b border-primary">
+    <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md" style={{ backgroundColor: 'color-mix(in srgb, var(--bg-primary) 90%, transparent)', borderBottom: '1px solid var(--border-primary)' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -77,7 +77,7 @@ export function Header() {
         
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <nav className="md:hidden py-6 border-t border-primary">
+          <nav className="md:hidden py-6" style={{ borderTop: '1px solid var(--border-primary)' }}>
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
                 <Link

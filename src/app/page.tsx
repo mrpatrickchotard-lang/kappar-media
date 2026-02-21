@@ -14,12 +14,12 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
         {/* Background */}
         <div className="absolute inset-0" style={{ background: 'var(--bg-primary)' }}>
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom right, rgba(42,138,122,0.15), transparent, rgba(42,138,122,0.05))' }}></div>
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl" style={{ background: 'rgba(42,138,122,0.12)' }}></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl" style={{ background: 'rgba(42,138,122,0.06)' }}></div>
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom right, rgba(42,138,122,0.18), transparent 50%, rgba(42,138,122,0.08))' }}></div>
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl" style={{ background: 'rgba(42,138,122,0.15)' }}></div>
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl" style={{ background: 'rgba(42,138,122,0.08)' }}></div>
         </div>
 
         <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-8 text-center">
