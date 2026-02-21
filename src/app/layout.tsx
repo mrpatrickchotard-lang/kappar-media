@@ -47,7 +47,7 @@ export default function RootLayout({
           })();
         `}} />
       </head>
-      <body className="antialiased min-h-screen" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      <body className="antialiased min-h-screen" suppressHydrationWarning style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         <Header />
         <main>
           {children}
