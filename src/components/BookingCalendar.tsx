@@ -3,25 +3,29 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { format, parseISO, isSameDay } from 'date-fns';
+import type { Expert, AvailabilitySlot } from '@/lib/experts';
 
 interface BookingCalendarProps {
-  expert: any;
+  expert: Expert;
 }
 
 export default function BookingCalendar({ expert }: BookingCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<any>(null);
+  const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
   const router = useRouter();
-  
-  const availableSlots = expert.availability.filter((s: any) => !s.booked);
+
+  const availableSlots = expert.availability.filter((s) => !s.booked);
   
   // Group slots by date
-  const slotsByDate = availableSlots.reduce((acc: any, slot: any) => {
-    const date = slot.date;
-    if (!acc[date]) acc[date] = [];
-    acc[date].push(slot);
-    return acc;
-  }, {});
+  const slotsByDate = availableSlots.reduce(
+    (acc: Record<string, AvailabilitySlot[]>, slot: AvailabilitySlot) => {
+      const date = slot.date;
+      if (!acc[date]) acc[date] = [];
+      acc[date].push(slot);
+      return acc;
+    },
+    {} as Record<string, AvailabilitySlot[]>
+  );
   
   const dates = Object.keys(slotsByDate).sort();
   
@@ -38,10 +42,10 @@ export default function BookingCalendar({ expert }: BookingCalendarProps) {
       <div className="mb-6">
         <p className="text-xs text-tertiary uppercase tracking-wider mb-3">Available Dates</p>
         <div className="flex gap-2 overflow-x-auto pb-2">
-          {dates.map((dateStr) => {
+          {dates.map((dateStr: string) => {
             const date = parseISO(dateStr);
             const isSelected = selectedDate && isSameDay(date, selectedDate);
-            
+
             return (
               <button
                 key={dateStr}
@@ -75,9 +79,9 @@ export default function BookingCalendar({ expert }: BookingCalendarProps) {
       {selectedDate && (
         <div className="mb-6">
           <p className="text-xs text-tertiary uppercase tracking-wider mb-3">Available Times</p>
-          
+
           <div className="grid grid-cols-2 gap-2">
-            {slotsByDate[format(selectedDate, 'yyyy-MM-dd')]?.map((slot: any) => (
+            {slotsByDate[format(selectedDate, 'yyyy-MM-dd')]?.map((slot) => (
               <button
                 key={slot.id}
                 onClick={() => setSelectedSlot(slot)}

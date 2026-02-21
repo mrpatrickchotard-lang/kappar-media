@@ -9,11 +9,11 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session) {
     redirect("/admin/login");
   }
-  
+
   return (
     <div className="min-h-screen bg-primary">
       {/* Admin Header */}
@@ -25,30 +25,44 @@ export default async function AdminLayout({
                 KAPPAR ADMIN
               </Link>
               <nav className="hidden md:flex items-center gap-6">
-                <Link href="/admin/content" className="text-sm text-secondary hover:text-primary transition-colors">
+                <Link
+                  href="/admin/content"
+                  className="text-sm text-secondary hover:text-primary transition-colors"
+                >
                   Content
                 </Link>
-                <Link href="/admin/experts" className="text-sm text-secondary hover:text-primary transition-colors">
+                <Link
+                  href="/admin/experts"
+                  className="text-sm text-secondary hover:text-primary transition-colors"
+                >
                   Experts
                 </Link>
-                <Link href="/admin/bookings" className="text-sm text-secondary hover:text-primary transition-colors">
+                <Link
+                  href="/admin/bookings"
+                  className="text-sm text-secondary hover:text-primary transition-colors"
+                >
                   Bookings
                 </Link>
               </nav>
-            </div>            
+            </div>
+
             <div className="flex items-center gap-4">
               <span className="text-sm text-tertiary">{session.user?.email}</span>
-              <Link 
+              <Link
                 href="/api/auth/signout"
                 className="text-sm text-secondary hover:text-primary transition-colors"
               >
                 Logout
               </Link>
             </div>
-          </div>        </div>      </header>      
-      
+          </div>
+        </div>
+      </header>
+
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
         {children}
-      </main>    </div>  );
+      </main>
+    </div>
+  );
 }

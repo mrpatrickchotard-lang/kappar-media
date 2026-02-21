@@ -17,13 +17,13 @@ export async function getExpertById(expertId: string) {
 export async function getExpertWithAvailability(expertId: string) {
   const expert = await getExpertById(expertId);
   if (!expert) return null;
-  
+
   const slots = await db
     .select()
     .from(availabilitySlots)
     .where(eq(availabilitySlots.expertId, expertId))
     .orderBy(availabilitySlots.date, availabilitySlots.startTime);
-  
+
   return { ...expert, availability: slots };
 }
 
@@ -67,7 +67,10 @@ export async function getBookingById(bookingId: string) {
   return result[0] || null;
 }
 
-export async function updateBooking(bookingId: string, data: Partial<typeof bookings.$inferInsert>) {
+export async function updateBooking(
+  bookingId: string,
+  data: Partial<typeof bookings.$inferInsert>
+) {
   return db.update(bookings).set({ ...data, updatedAt: new Date() }).where(eq(bookings.bookingId, bookingId));
 }
 
@@ -90,7 +93,7 @@ export async function getUserByEmail(email: string) {
   return result[0] || null;
 }
 
-export async function verifyPassword(password: string, hash: string) {
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }
 

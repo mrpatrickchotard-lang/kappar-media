@@ -106,13 +106,40 @@ let experts: Expert[] = [
 let bookings: Booking[] = [];
 let sessions: CallSession[] = [];
 
-function generateSampleAvailability(expertId: string) {
-  const slots = [];
+// Deterministic seeding function for consistent booking states
+function getSeededRandom(seed: string, index: number): number {
+  const combined = seed + index.toString();
+  let hash = 0;
+  for (let i = 0; i < combined.length; i++) {
+    const char = combined.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash % 1000) / 1000;
+}
+
+function generateSampleAvailability(expertId: string): Array<{
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  booked: boolean;
+}> {
+  const slots: Array<{
+    id: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    booked: boolean;
+  }> = [];
   const today = new Date();
+  let slotIndex = 0;
+
   for (let i = 1; i <= 14; i++) {
     const date = new Date(today);
     date.setDate(date.getDate() + i);
     if (date.getDay() === 0 || date.getDay() === 6) continue;
+
     const dateStr = date.toISOString().split('T')[0];
     const timeSlots = [
       { start: '09:00', end: '10:00' },
@@ -120,14 +147,18 @@ function generateSampleAvailability(expertId: string) {
       { start: '14:00', end: '15:00' },
       { start: '15:00', end: '16:00' },
     ];
+
     for (const time of timeSlots) {
+      // Use deterministic seeding: approximately 30% booked slots
+      const isBooked = getSeededRandom(expertId, slotIndex) > 0.7;
       slots.push({
         id: `slot-${expertId}-${dateStr}-${time.start}`,
         date: dateStr,
         startTime: time.start,
         endTime: time.end,
-        booked: Math.random() > 0.7,
+        booked: isBooked,
       });
+      slotIndex++;
     }
   }
   return slots;

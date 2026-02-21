@@ -7,7 +7,7 @@ export function NewsletterSignup() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus('loading');
     setErrorMsg('');
@@ -20,15 +20,17 @@ export function NewsletterSignup() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await res.json() as { error?: string };
         throw new Error(data.error || 'Failed to subscribe');
       }
 
       setStatus('success');
       setEmail('');
-    } catch (err: any) {
+    } catch (err) {
       setStatus('error');
-      setErrorMsg(err.message || 'Something went wrong. Please try again.');
+      const errorMessage =
+        err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      setErrorMsg(errorMessage);
     }
   };
 

@@ -11,23 +11,29 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    });
-    
-    if (result?.error) {
-      setError('Invalid credentials');
+
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Invalid credentials');
+        setLoading(false);
+      } else {
+        router.push('/admin');
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'An error occurred during sign in';
+      setError(errorMessage);
       setLoading(false);
-    } else {
-      router.push('/admin');
-      router.refresh();
     }
   };
   
@@ -39,16 +45,21 @@ export default function AdminLoginPage() {
             KAPPAR ADMIN
           </h1>
           <p className="text-secondary">Sign in to manage content and experts</p>
-        </div>        
+        </div>
+
         <form onSubmit={handleSubmit} className="bg-card border border-primary rounded-2xl p-8">
           {error && (
             <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
               {error}
             </div>
-          )}          
+          )}
+
           <div className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm text-secondary mb-2">Email</label>              <input
+              <label htmlFor="email" className="block text-sm text-secondary mb-2">
+                Email
+              </label>
+              <input
                 type="email"
                 id="email"
                 value={email}
@@ -57,9 +68,13 @@ export default function AdminLoginPage() {
                 placeholder="admin@kappar.tv"
                 required
               />
-            </div>            
+            </div>
+
             <div>
-              <label htmlFor="password" className="block text-sm text-secondary mb-2">Password</label>              <input
+              <label htmlFor="password" className="block text-sm text-secondary mb-2">
+                Password
+              </label>
+              <input
                 type="password"
                 id="password"
                 value={password}
@@ -68,7 +83,8 @@ export default function AdminLoginPage() {
                 placeholder="••••••••"
                 required
               />
-            </div>            
+            </div>
+
             <button
               type="submit"
               disabled={loading}
@@ -76,9 +92,9 @@ export default function AdminLoginPage() {
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
-          </div>        </form>        
-        <p className="text-center text-sm text-tertiary mt-6">
-          Default: admin@kappar.tv / kappar2026
-        </p>      
-    </div>    </div>  );
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 }

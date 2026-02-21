@@ -1,6 +1,19 @@
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getUserByEmail, verifyPassword } from "./db-operations";
+
+// Extend NextAuth session and JWT types
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: DefaultSession["user"] & {
+      id: string;
+    };
+  }
+
+  interface JWT {
+    id?: string;
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -48,7 +61,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id;
+        session.user.id = (token.id as string) || "";
       }
       return session;
     },

@@ -1,6 +1,7 @@
 import { getExperts } from '@/lib/expert-db';
 import Link from 'next/link';
 import { TagList } from '@/components/TagCloud';
+import type { Expert } from '@/lib/experts';
 
 export default function ExpertsPage() {
   const experts = getExperts();
@@ -48,7 +49,12 @@ export default function ExpertsPage() {
   );
 }
 
-function ExpertCard({ expert, featured = false }: { expert: any; featured?: boolean }) {
+interface ExpertCardProps {
+  expert: Expert;
+  featured?: boolean;
+}
+
+function ExpertCard({ expert, featured = false }: ExpertCardProps) {
   return (
     <Link href={`/experts/${expert.id}`} className="group block">
       <article
