@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Logo } from './Logo';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -15,7 +16,13 @@ const navLinks = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname.startsWith(href);
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md" style={{ backgroundColor: 'color-mix(in srgb, var(--bg-primary) 90%, transparent)', borderBottom: '1px solid var(--border-primary)' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -24,7 +31,7 @@ export function Header() {
           <Link href="/" className="flex items-center gap-4">
             <Logo variant="teal" size={40} />
             <div className="hidden sm:flex flex-col">
-              <span className="font-display text-xl font-light tracking-[0.35em] uppercase text-primary">
+              <span className="font-display text-xl font-light tracking-[0.35em] uppercase" style={{ color: 'var(--text-primary)' }}>
                 KAPPAR
               </span>
               <span className="text-[9px] tracking-[0.45em] uppercase" style={{ color: 'var(--teal)' }}>
@@ -32,35 +39,45 @@ export function Header() {
               </span>
             </div>
           </Link>
-          
+
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm font-body text-secondary hover:text-primary transition-colors tracking-wide"
+                className="text-sm font-body transition-colors tracking-wide relative"
+                style={{
+                  color: isActive(link.href) ? 'var(--teal)' : 'var(--text-secondary)',
+                }}
               >
                 {link.label}
+                {isActive(link.href) && (
+                  <span
+                    className="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full"
+                    style={{ backgroundColor: 'var(--teal)' }}
+                  />
+                )}
               </Link>
             ))}
             <div className="flex items-center gap-4">
               <ThemeToggle />
               <Link
                 href="/newsletter"
-                className="px-5 py-2.5 text-sm font-body rounded-lg transition-colors"
+                className="px-5 py-2.5 text-sm font-body rounded-lg transition-all hover:opacity-90 hover:shadow-lg"
                 style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef' }}
               >
                 Subscribe
               </Link>
             </div>
           </nav>
-          
+
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-3">
             <ThemeToggle />
             <button
-              className="p-2 text-primary"
+              className="p-2"
+              style={{ color: 'var(--text-primary)' }}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
             >
@@ -74,7 +91,7 @@ export function Header() {
             </button>
           </div>
         </div>
-        
+
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <nav className="md:hidden py-6" style={{ borderTop: '1px solid var(--border-primary)' }}>
@@ -83,7 +100,12 @@ export function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-base font-body text-secondary hover:text-primary transition-colors py-2"
+                  className="text-base font-body transition-colors py-2"
+                  style={{
+                    color: isActive(link.href) ? 'var(--teal)' : 'var(--text-secondary)',
+                    borderLeft: isActive(link.href) ? '2px solid var(--teal)' : '2px solid transparent',
+                    paddingLeft: '1rem',
+                  }}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.label}
@@ -91,7 +113,7 @@ export function Header() {
               ))}
               <Link
                 href="/newsletter"
-                className="mt-4 px-5 py-3 text-center text-sm font-body rounded-lg"
+                className="mt-4 px-5 py-3 text-center text-sm font-body rounded-lg transition-all hover:opacity-90"
                 style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef' }}
                 onClick={() => setMobileMenuOpen(false)}
               >

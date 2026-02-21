@@ -11,7 +11,7 @@ export function ArticleCard({ article, featured = false, showTags = true }: Arti
   if (featured) {
     return (
       <Link href={`/content/${article.slug}`} className="group block">
-        <article className="relative overflow-hidden rounded-2xl bg-card border border-primary hover:border-secondary transition-all">
+        <article className="relative overflow-hidden rounded-2xl card-hover" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}>
           <div className="aspect-[16/9] bg-gradient-to-br from-[var(--mt-disc)] to-[var(--accent-secondary)] relative overflow-hidden">
             {article.coverImage ? (
               <img 
@@ -80,7 +80,7 @@ export function ArticleCard({ article, featured = false, showTags = true }: Arti
   return (
     <Link href={`/content/${article.slug}`} className="group block">
       <article className="flex flex-col h-full">
-        <div className="aspect-[16/10] rounded-xl bg-gradient-to-br from-[var(--mt-disc)]/50 to-[var(--accent-secondary)]/30 mb-5 relative overflow-hidden border border-primary group-hover:border-secondary transition-all">
+        <div className="aspect-[16/10] rounded-xl bg-gradient-to-br from-[var(--mt-disc)]/50 to-[var(--accent-secondary)]/30 mb-5 relative overflow-hidden group-hover:shadow-md transition-all" style={{ border: '1px solid var(--border-primary)' }}>
           {article.coverImage ? (
             <img 
               src={article.coverImage} 
