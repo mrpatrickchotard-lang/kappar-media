@@ -2,14 +2,15 @@ import { getAllArticles, getCategories } from '@/lib/content';
 import { ArticleCard } from '@/components/ArticleCard';
 
 interface ContentPageProps {
-  searchParams: { category?: string };
+  searchParams: Promise<{ category?: string }>;
 }
 
 export default async function ContentPage({ searchParams }: ContentPageProps) {
+  const { category } = await searchParams;
   const allArticles = await getAllArticles();
   const categories = getCategories();
 
-  const selectedCategory = searchParams.category;
+  const selectedCategory = category;
 
   const filteredArticles = selectedCategory
     ? allArticles.filter(a => a.category.toLowerCase() === selectedCategory.toLowerCase())

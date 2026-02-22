@@ -1,15 +1,38 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { getExperts } from '@/lib/expert-db';
 
 export default function AdminExpertsPage() {
-  const experts = getExperts();
+  const [experts, setExperts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    try {
+      const data = getExperts();
+      setExperts(data);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
+  }, []);
   
+  if (loading) {
+    return (
+      <div>
+        <h1 className="font-display text-3xl font-light tracking-wide text-primary">Experts</h1>
+        <p className="text-secondary mt-2">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="font-display text-3xl font-light tracking-wide text-primary">Experts</h1>          
-          <p className="text-secondary mt-2">Manage your expert network</p>        </div>        
+          <h1 className="font-display text-3xl font-light tracking-wide text-primary">Experts</h1>
+          <p className="text-secondary mt-2">Manage your expert network</p>        </div>
         <Link
           href="/admin/experts/new"
           className="px-6 py-3 accent-primary text-[var(--accent-gold)] rounded-lg hover:bg-[var(--accent-secondary)] transition-colors"
@@ -38,7 +61,7 @@ export default function AdminExpertsPage() {
                       <p className="text-sm text-tertiary">{expert.title} at {expert.company}</p>                    </div>                  </div>                </td>                
                 <td className="py-4 px-6">
                   <div className="flex flex-wrap gap-1">
-                    {expert.expertise.slice(0, 2).map((exp) => (
+                    {expert.expertise.slice(0, 2).map((exp: string) => (
                       <span key={exp} className="tag tag-outline text-[10px]">{exp}</span>                    ))}                    
                     {expert.expertise.length > 2 && (
                       <span className="tag tag-outline text-[10px]">+{expert.expertise.length - 2}</span>                    )}                  </div>                </td>                

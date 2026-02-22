@@ -1,7 +1,21 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { getBookings, getExpertById } from '@/lib/expert-db';
 
 export default function AdminBookingsPage() {
-  const bookings = getBookings();
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    try {
+      const data = getBookings();
+      setBookings(data);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -19,6 +33,15 @@ export default function AdminBookingsPage() {
         return { bg: 'var(--bg-primary)', text: 'var(--text-secondary)' };
     }
   };
+
+  if (loading) {
+    return (
+      <div>
+        <h1 className="font-display text-3xl font-light tracking-wide text-primary">Bookings</h1>
+        <p className="text-secondary mt-2">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div>

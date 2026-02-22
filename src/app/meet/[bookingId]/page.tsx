@@ -1,33 +1,34 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { getExpertById } from '@/lib/expert-db';
 import VideoRoom from '@/components/VideoRoom';
 
-export default function MeetingPage({ params }: { params: { bookingId: string } }) {
+export default function MeetingPage() {
   const searchParams = useSearchParams();
+  const { bookingId } = useParams<{ bookingId: string }>();
   const expertId = searchParams.get('expert');
-  
+
   const [booking, setBooking] = useState<any>(null);
   const [callEnded, setCallEnded] = useState(false);
   const [finalCharge, setFinalCharge] = useState(0);
   const [actualMinutes, setActualMinutes] = useState(0);
-  
+
   const expert = expertId ? getExpertById(expertId) : null;
-  
+
   useEffect(() => {
     // In a real app, fetch booking from API
     // For demo, create a mock booking
     setBooking({
-      id: params.bookingId,
+      id: bookingId,
       expertId: expertId,
       clientName: 'Demo Client',
       scheduledEndTime: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now
       hourlyRate: expert?.hourlyRate || 500,
     });
-  }, [params.bookingId, expertId, expert]);
+  }, [bookingId, expertId, expert]);
   
   const handleEndCall = (minutes: number, charge: number) => {
     setActualMinutes(minutes);

@@ -1,21 +1,47 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { getExperts, getBookings } from '@/lib/expert-db';
 import { getAllArticles } from '@/lib/content';
 
-export default async function AdminDashboardPage() {
-  const experts = getExperts();
-  const bookings = getBookings();
-  const articles = await getAllArticles();
-  
-  const stats = {
-    totalExperts: experts.length,
-    featuredExperts: experts.filter(e => e.featured).length,
-    totalBookings: bookings.length,
-    pendingBookings: bookings.filter(b => b.status === 'pending').length,
-    totalArticles: articles.length,
-    featuredArticles: articles.filter(a => a.featured).length,
-  };
-  
+export default function AdminDashboardPage() {
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const experts = getExperts();
+        const bookings = getBookings();
+        const articles = await getAllArticles();
+
+        setStats({
+          totalExperts: experts.length,
+          featuredExperts: experts.filter((e: any) => e.featured).length,
+          totalBookings: bookings.length,
+          pendingBookings: bookings.filter((b: any) => b.status === 'pending').length,
+          totalArticles: articles.length,
+          featuredArticles: articles.filter((a: any) => a.featured).length,
+        });
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  if (loading || !stats) {
+    return (
+      <div>
+        <h1 className="font-display text-3xl font-light tracking-wide text-primary">Dashboard</h1>
+        <p className="text-secondary mt-2">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mb-8">

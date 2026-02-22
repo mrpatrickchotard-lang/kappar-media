@@ -1,15 +1,23 @@
-import { getExpertById } from '@/lib/expert-db';
+import { getExpertById, getExperts } from '@/lib/expert-db';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { TagList } from '@/components/TagCloud';
 import BookingCalendar from '@/components/BookingCalendar';
 
 interface ExpertPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function ExpertDetailPage({ params }: ExpertPageProps) {
-  const expert = getExpertById(params.id);
+export async function generateStaticParams() {
+  const experts = await getExperts();
+  return experts.map((expert) => ({
+    id: expert.id,
+  }));
+}
+
+export default async function ExpertDetailPage({ params }: ExpertPageProps) {
+  const { id } = await params;
+  const expert = getExpertById(id);
   
   if (!expert) {
     notFound();

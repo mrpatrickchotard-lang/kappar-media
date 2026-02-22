@@ -3,7 +3,7 @@ import { ArticleCard } from '@/components/ArticleCard';
 import { TagCloud } from '@/components/TagCloud';
 
 interface TagPageProps {
-  params: { tag: string };
+  params: Promise<{ tag: string }>;
 }
 
 export async function generateStaticParams() {
@@ -14,7 +14,8 @@ export async function generateStaticParams() {
 }
 
 export default async function TagPage({ params }: TagPageProps) {
-  const decodedTag = decodeURIComponent(params.tag);
+  const { tag } = await params;
+  const decodedTag = decodeURIComponent(tag);
   const articles = await getArticlesByTag(decodedTag);
   
   return (

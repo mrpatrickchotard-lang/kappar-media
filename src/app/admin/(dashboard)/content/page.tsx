@@ -1,8 +1,28 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { getAllArticles } from '@/lib/content';
 
-export default async function AdminContentPage() {
-  const articles = await getAllArticles();
+export default function AdminContentPage() {
+  const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getAllArticles().then((data) => {
+      setArticles(data);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
+    return (
+      <div>
+        <h1 className="font-display text-3xl font-light tracking-wide text-primary">Content Management</h1>
+        <p className="text-secondary mt-2">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -202,7 +222,7 @@ export default async function AdminContentPage() {
                       flexWrap: 'wrap',
                       maxWidth: '150px'
                     }}>
-                      {article.tags.slice(0, 2).map((tag) => (
+                      {article.tags.slice(0, 2).map((tag: string) => (
                         <span
                           key={tag}
                           style={{

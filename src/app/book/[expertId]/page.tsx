@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { getExpertById } from '@/lib/expert-db';
 import { format, parseISO } from 'date-fns';
 import type { Expert, AvailabilitySlot } from '@/lib/experts';
@@ -17,12 +17,13 @@ interface BookingApiError {
   error?: string;
 }
 
-export default function BookingPage({ params }: { params: { expertId: string } }) {
+export default function BookingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { expertId } = useParams<{ expertId: string }>();
   const slotId = searchParams.get('slot');
 
-  const expert = getExpertById(params.expertId);
+  const expert = getExpertById(expertId);
   const slot = expert?.availability.find((s) => s.id === slotId);
 
   const [formData, setFormData] = useState<BookingFormData>({
