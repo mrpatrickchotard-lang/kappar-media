@@ -6,6 +6,7 @@ import { Logo } from './Logo';
 const footerLinks = {
   content: [
     { href: '/content', label: 'Articles' },
+    { href: '/events', label: 'Events' },
     { href: '/experts', label: 'Experts' },
     { href: '/newsletter', label: 'Newsletter' },
   ],

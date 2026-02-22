@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { getFeaturedArticles, getLatestArticles } from '@/lib/content';
+import { getUpcomingEvents } from '@/lib/events';
 import { ArticleCard } from '@/components/ArticleCard';
+import { EventCard } from '@/components/EventCard';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
 import { Logo } from '@/components/Logo';
 import { CategoryIcon } from '@/components/CategoryIcon';
@@ -8,6 +10,7 @@ import { CategoryIcon } from '@/components/CategoryIcon';
 export default async function HomePage() {
   const featuredArticles = await getFeaturedArticles();
   const latestArticles = await getLatestArticles(6);
+  const upcomingEvents = getUpcomingEvents(3);
 
   const heroArticle = featuredArticles[0];
   const otherFeatured = featuredArticles.slice(1, 3);
@@ -152,6 +155,43 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Upcoming Events */}
+      {upcomingEvents.length > 0 && (
+        <section className="py-24" style={{ background: 'var(--bg-primary)' }}>
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="flex items-baseline justify-between mb-12">
+              <div>
+                <span className="text-xs tracking-[0.3em] uppercase font-body mb-2 block" style={{ color: 'var(--teal)' }}>
+                  Events
+                </span>
+                <h2 className="font-display text-3xl font-light tracking-wide" style={{ color: 'var(--text-primary)' }}>
+                  Upcoming Events
+                </h2>
+              </div>
+              <Link href="/events" className="text-sm transition-colors hover:text-[var(--teal)]" style={{ color: 'var(--text-secondary)' }}>
+                View All Events →
+              </Link>
+            </div>
+
+            {/* Featured event */}
+            {upcomingEvents[0] && (
+              <div className="mb-8">
+                <EventCard event={upcomingEvents[0]} featured />
+              </div>
+            )}
+
+            {/* Other upcoming events */}
+            {upcomingEvents.length > 1 && (
+              <div className="grid md:grid-cols-2 gap-6">
+                {upcomingEvents.slice(1, 3).map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Latest Articles */}
       <section className="py-24" style={{ background: 'var(--bg-primary)' }}>
