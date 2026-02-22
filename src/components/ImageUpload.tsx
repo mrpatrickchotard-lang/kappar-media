@@ -73,7 +73,7 @@ export function ImageUpload({ value, onChange, label = 'Upload Image', accept = 
 
       {value ? (
         <div className="relative rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-primary)' }}>
-          <img src={value} alt="Uploaded" className="w-full h-40 object-cover" />
+          <img src={value} alt={`${label} preview`} className="w-full h-40 object-cover" />
           <div className="absolute top-2 right-2 flex gap-2">
             <button
               onClick={() => inputRef.current?.click()}

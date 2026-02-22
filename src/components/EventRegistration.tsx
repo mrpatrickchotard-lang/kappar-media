@@ -150,8 +150,9 @@ export function EventRegistration({ event }: EventRegistrationProps) {
           </div>
         ) : (
           <button
-            className="w-full py-3 px-6 rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:-translate-y-0.5"
+            className="w-full py-3 px-6 rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2"
             style={{ backgroundColor: 'var(--teal)', color: '#f5f3ef' }}
+            aria-label={`Register for ${event.title}`}
           >
             Register Now
           </button>
