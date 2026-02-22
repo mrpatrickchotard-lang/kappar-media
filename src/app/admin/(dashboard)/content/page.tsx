@@ -4,8 +4,18 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getAllArticles } from '@/lib/content';
 
+interface Article {
+  slug: string;
+  title: string;
+  category: string;
+  author: string;
+  date: string;
+  featured?: boolean;
+  tags: string[];
+}
+
 export default function AdminContentPage() {
-  const [articles, setArticles] = useState<any[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

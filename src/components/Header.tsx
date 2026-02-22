@@ -40,6 +40,11 @@ export function Header() {
     return pathname.startsWith(href);
   };
 
+  // Hide on admin/dashboard routes (they have their own headers)
+  if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard')) {
+    return null;
+  }
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md" style={{ backgroundColor: 'color-mix(in srgb, var(--bg-primary) 90%, transparent)', borderBottom: '1px solid var(--border-primary)' }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8">

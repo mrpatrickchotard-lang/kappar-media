@@ -5,8 +5,17 @@ import { useEffect, useState } from 'react';
 import { getExperts, getBookings } from '@/lib/expert-db';
 import { getAllArticles } from '@/lib/content';
 
+interface DashboardStats {
+  totalExperts: number;
+  featuredExperts: number;
+  totalBookings: number;
+  pendingBookings: number;
+  totalArticles: number;
+  featuredArticles: number;
+}
+
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,11 +27,11 @@ export default function AdminDashboardPage() {
 
         setStats({
           totalExperts: experts.length,
-          featuredExperts: experts.filter((e: any) => e.featured).length,
+          featuredExperts: experts.filter((e: { featured?: boolean }) => e.featured).length,
           totalBookings: bookings.length,
-          pendingBookings: bookings.filter((b: any) => b.status === 'pending').length,
+          pendingBookings: bookings.filter((b: { status?: string }) => b.status === 'pending').length,
           totalArticles: articles.length,
-          featuredArticles: articles.filter((a: any) => a.featured).length,
+          featuredArticles: articles.filter((a: { featured?: boolean }) => a.featured).length,
         });
         setLoading(false);
       } catch (error) {

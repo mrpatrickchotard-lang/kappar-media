@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Logo } from './Logo';
 
 const footerLinks = {
@@ -48,9 +49,15 @@ const socialLinks = [
 ];
 
 export function Footer() {
+  const pathname = usePathname();
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Hide on admin/dashboard routes
+  if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard')) {
+    return null;
+  }
 
   return (
     <footer style={{ backgroundColor: 'var(--bg-secondary)', borderTop: '1px solid var(--border-primary)' }}>

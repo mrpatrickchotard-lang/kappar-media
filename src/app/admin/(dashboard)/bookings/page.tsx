@@ -1,10 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getBookings, getExpertById } from '@/lib/expert-db';
 
 export default function AdminBookingsPage() {
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<Array<{
+    id: string;
+    expertId: string;
+    clientName: string;
+    clientEmail: string;
+    date: string;
+    startTime: string;
+    status: string;
+    totalAmount: number;
+  }>>([]);
+  const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -153,8 +163,8 @@ export default function AdminBookingsPage() {
                 const statusColor = getStatusColor(booking.status);
 
                 return (
+                  <React.Fragment key={booking.id}>
                   <tr
-                    key={booking.id}
                     style={{
                       borderBottom: index < bookings.length - 1 ? '1px solid var(--border-primary)' : 'none',
                       transition: 'background-color 0.2s'
@@ -237,6 +247,7 @@ export default function AdminBookingsPage() {
                       textAlign: 'right'
                     }}>
                       <button
+                        onClick={() => setSelectedBooking(selectedBooking === booking.id ? null : booking.id)}
                         style={{
                           color: 'var(--teal)',
                           fontSize: '13px',
@@ -250,10 +261,33 @@ export default function AdminBookingsPage() {
                         onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
                         onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
                       >
-                        View
+                        {selectedBooking === booking.id ? 'Close' : 'View'}
                       </button>
                     </td>
                   </tr>
+                  {selectedBooking === booking.id && (
+                    <tr>
+                      <td colSpan={7} style={{ padding: '16px 24px', backgroundColor: 'var(--bg-primary)' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+                          <div>
+                            <p style={{ color: 'var(--text-tertiary)', fontSize: '11px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Client</p>
+                            <p style={{ color: 'var(--text-primary)', fontSize: '14px' }}>{booking.clientName}</p>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{booking.clientEmail}</p>
+                          </div>
+                          <div>
+                            <p style={{ color: 'var(--text-tertiary)', fontSize: '11px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Expert</p>
+                            <p style={{ color: 'var(--text-primary)', fontSize: '14px' }}>{expert ? expert.name : 'Unknown'}</p>
+                          </div>
+                          <div>
+                            <p style={{ color: 'var(--text-tertiary)', fontSize: '11px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Schedule</p>
+                            <p style={{ color: 'var(--text-primary)', fontSize: '14px' }}>{booking.date} at {booking.startTime}</p>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>Status: {booking.status}</p>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                  </React.Fragment>
                 );
               })}
             </tbody>
