@@ -17,6 +17,20 @@ export function ImageUpload({ value, onChange, label = 'Upload Image', accept = 
 
   const handleUpload = async (file: File) => {
     setError('');
+
+    // Validate file size (max 5MB)
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      setError('File too large. Maximum size is 5MB.');
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Only image files are allowed.');
+      return;
+    }
+
     setUploading(true);
 
     try {

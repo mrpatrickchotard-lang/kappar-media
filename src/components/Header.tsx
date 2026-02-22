@@ -37,7 +37,7 @@ export function Header() {
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
-    return pathname.startsWith(href);
+    return pathname === href || pathname.startsWith(href + '/');
   };
 
   // Hide on admin/dashboard routes (they have their own headers)

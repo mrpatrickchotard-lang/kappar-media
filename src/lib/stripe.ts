@@ -8,7 +8,8 @@ function getStripe(): Stripe {
       throw new Error('STRIPE_SECRET_KEY environment variable is not set');
     }
     _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2026-01-28.clover',
+      // @ts-expect-error - Stripe SDK version may differ from latest API version
+      apiVersion: '2024-12-18.acacia',
     });
   }
   return _stripe;

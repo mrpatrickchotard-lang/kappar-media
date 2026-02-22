@@ -1,16 +1,16 @@
-import { NextResponse } from 'next/server';
-import { put, del } from '@vercel/blob';
+import { NextRequest, NextResponse } from 'next/server';
+import { put } from '@vercel/blob';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
-const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    // Auth check
+    // Check authentication
     const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -21,66 +21,38 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // Validate type
+    // Validate file type
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: `Invalid file type. Allowed: ${ALLOWED_TYPES.join(', ')}` },
+        { error: 'Invalid file type. Allowed: JPEG, PNG, WebP, GIF' },
         { status: 400 }
       );
     }
 
-    // Validate size
-    if (file.size > MAX_SIZE) {
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: `File too large. Maximum size: ${MAX_SIZE / 1024 / 1024}MB` },
+        { error: 'File too large. Maximum size is 5MB.' },
         { status: 400 }
       );
     }
 
     // Generate unique filename
     const ext = file.name.split('.').pop() || 'jpg';
-    const timestamp = Date.now();
-    const safeName = file.name
-      .replace(/\.[^/.]+$/, '')
-      .replace(/[^a-zA-Z0-9-_]/g, '-')
-      .slice(0, 50);
-    const filename = `kappar/${safeName}-${timestamp}.${ext}`;
+    const filename = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
     // Upload to Vercel Blob
     const blob = await put(filename, file, {
       access: 'public',
-      addRandomSuffix: false,
+      contentType: file.type,
     });
 
-    return NextResponse.json({
-      url: blob.url,
-      filename: blob.pathname,
-      size: file.size,
-      type: file.type,
-    });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Upload failed';
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
-}
-
-// Delete an uploaded image
-export async function DELETE(request: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { url } = await request.json();
-    if (!url) {
-      return NextResponse.json({ error: 'No URL provided' }, { status: 400 });
-    }
-
-    await del(url);
-    return NextResponse.json({ success: true });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Delete failed';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ url: blob.url });
+  } catch (error) {
+    console.error('Upload error:', error);
+    return NextResponse.json(
+      { error: 'Failed to upload file' },
+      { status: 500 }
+    );
   }
 }

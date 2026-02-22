@@ -48,7 +48,8 @@ function PaymentForm({ bookingId, totalAmount }: { bookingId: string; totalAmoun
       <button
         type="submit"
         disabled={!stripe || loading}
-        className="w-full py-3 accent-primary text-[var(--accent-gold)] rounded-lg hover:bg-[var(--accent-secondary)] transition-colors disabled:opacity-50"
+        className="w-full py-3 rounded-lg transition-colors disabled:opacity-50"
+        style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef' }}
       >
         {loading ? 'Processing...' : `Pay $${totalAmount}`}
       </button>
@@ -56,18 +57,31 @@ function PaymentForm({ bookingId, totalAmount }: { bookingId: string; totalAmoun
   );
 }
 
-export default function PaymentPage({ 
-  clientSecret, 
-  bookingId, 
+interface ExpertInfo {
+  id: string;
+  name: string;
+  title: string;
+}
+
+interface SlotInfo {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
+export default function PaymentPage({
+  clientSecret,
+  bookingId,
   totalAmount,
   expert,
   slot
-}: { 
-  clientSecret: string; 
-  bookingId: string; 
+}: {
+  clientSecret: string;
+  bookingId: string;
   totalAmount: number;
-  expert: any;
-  slot: any;
+  expert: ExpertInfo;
+  slot: SlotInfo;
 }) {
   const options = {
     clientSecret,

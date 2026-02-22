@@ -3,7 +3,7 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 interface RichTextEditorProps {
   content: string;
@@ -41,6 +41,7 @@ function ToolbarButton({
 
 export function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadError, setUploadError] = useState('');
 
   const editor = useEditor({
     extensions: [
@@ -70,6 +71,18 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setUploadError('');
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('Image too large. Maximum size is 5MB.');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Only image files are allowed.');
+      return;
+    }
 
     const formData = new FormData();
     formData.append('file', file);
@@ -77,11 +90,15 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
     try {
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
       const data = await res.json();
+      if (!res.ok) {
+        setUploadError(data.error || 'Upload failed');
+        return;
+      }
       if (data.url) {
         editor.chain().focus().setImage({ src: data.url }).run();
       }
     } catch {
-      // Silently fail
+      setUploadError('Failed to upload image. Please try again.');
     }
   };
 
@@ -199,6 +216,10 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         onChange={handleImageUpload}
         className="hidden"
       />
+
+      {uploadError && (
+        <p className="text-xs mt-2" style={{ color: '#ef4444' }}>{uploadError}</p>
+      )}
     </div>
   );
 }

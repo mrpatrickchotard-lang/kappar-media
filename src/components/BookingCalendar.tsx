@@ -55,7 +55,7 @@ export default function BookingCalendar({ expert }: BookingCalendarProps) {
                 }}
                 className={`flex-shrink-0 p-3 rounded-xl border transition-all ${
                   isSelected
-                    ? 'border-[var(--accent-emerald)] bg-[var(--accent-emerald)]/10'
+                    ? 'border-[var(--accent-emerald)]'
                     : 'border-primary hover:border-secondary'
                 }`}
               >
@@ -87,7 +87,7 @@ export default function BookingCalendar({ expert }: BookingCalendarProps) {
                 onClick={() => setSelectedSlot(slot)}
                 className={`p-3 rounded-lg border text-sm transition-all ${
                   selectedSlot?.id === slot.id
-                    ? 'border-[var(--accent-emerald)] bg-[var(--accent-emerald)]/10 text-primary'
+                    ? 'border-[var(--accent-emerald)] text-primary'
                     : 'border-primary hover:border-secondary text-secondary'
                 }`}
               >
@@ -103,7 +103,8 @@ export default function BookingCalendar({ expert }: BookingCalendarProps) {
       <button
         onClick={handleBooking}
         disabled={!selectedSlot}
-        className="w-full py-3 accent-primary text-[var(--accent-gold)] rounded-lg hover:bg-[var(--accent-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef' }}
       >
         {selectedSlot ? 'Continue to Booking' : 'Select a Time'}
       </button>

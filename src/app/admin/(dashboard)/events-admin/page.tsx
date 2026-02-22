@@ -47,8 +47,10 @@ export default function AdminEventsPage() {
         return { bg: 'rgba(107, 114, 128, 0.1)', color: 'rgb(107, 114, 128)' };
       case 'cancelled':
         return { bg: 'rgba(220, 38, 38, 0.1)', color: 'rgb(220, 38, 38)' };
+      case 'past':
+        return { bg: 'rgba(107, 114, 128, 0.1)', color: 'rgb(107, 114, 128)' };
       default:
-        return { bg: 'var(--bg-primary)', color: 'var(--text-secondary)' };
+        return { bg: 'rgba(107, 114, 128, 0.1)', color: 'var(--text-secondary)' };
     }
   };
 
