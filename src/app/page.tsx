@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import { getFeaturedArticles, getLatestArticles } from '@/lib/content';
 import { getUpcomingEvents } from '@/lib/events';
+import { getAllPartners } from '@/lib/partners';
 import { ArticleCard } from '@/components/ArticleCard';
 import { EventCard } from '@/components/EventCard';
+import { PartnerLogo } from '@/components/PartnerLogo';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
 import { Logo } from '@/components/Logo';
 import { CategoryIcon } from '@/components/CategoryIcon';
@@ -11,6 +13,7 @@ export default async function HomePage() {
   const featuredArticles = await getFeaturedArticles();
   const latestArticles = await getLatestArticles(6);
   const upcomingEvents = getUpcomingEvents(3);
+  const partners = getAllPartners();
 
   const heroArticle = featuredArticles[0];
   const otherFeatured = featuredArticles.slice(1, 3);
@@ -215,6 +218,56 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Our Partners */}
+      {partners.length > 0 && (
+        <section className="py-24 border-t" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}>
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <span className="text-xs tracking-[0.3em] uppercase font-body mb-2 block" style={{ color: 'var(--teal)' }}>
+                Our Network
+              </span>
+              <h2 className="font-display text-3xl font-light tracking-wide mb-3" style={{ color: 'var(--text-primary)' }}>
+                Trusted Partners
+              </h2>
+              <p className="font-body text-sm max-w-lg mx-auto" style={{ color: 'var(--text-secondary)' }}>
+                We collaborate with leading organizations to deliver exceptional insights and experiences.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center gap-8 md:gap-12 flex-wrap mb-8">
+              {partners.slice(0, 7).map((partner) => (
+                <Link
+                  key={partner.id}
+                  href={`/partners/${partner.slug}`}
+                  className="group transition-all hover:scale-105"
+                  title={partner.name}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <PartnerLogo name={partner.name} slug={partner.slug} size={64} />
+                    <span
+                      className="text-[10px] tracking-[0.1em] uppercase font-body opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ color: 'var(--text-tertiary)' }}
+                    >
+                      {partner.name.length > 18 ? partner.name.slice(0, 18) + '...' : partner.name}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <div className="text-center">
+              <Link
+                href="/partners"
+                className="text-sm font-body transition-colors hover:text-[var(--teal)]"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                View All Partners →
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Newsletter */}
       <NewsletterSignup />

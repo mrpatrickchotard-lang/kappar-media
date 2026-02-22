@@ -8,6 +8,7 @@ const footerLinks = {
     { href: '/content', label: 'Articles' },
     { href: '/events', label: 'Events' },
     { href: '/experts', label: 'Experts' },
+    { href: '/partners', label: 'Partners' },
     { href: '/newsletter', label: 'Newsletter' },
   ],
   company: [
