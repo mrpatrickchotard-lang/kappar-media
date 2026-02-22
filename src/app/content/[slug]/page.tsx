@@ -4,6 +4,7 @@ import { getArticleBySlug, getAllArticles, getRelatedArticles } from '@/lib/cont
 import { TagList } from '@/components/TagCloud';
 import CopyLinkButton from '@/components/CopyLinkButton';
 import { ReadingProgress } from '@/components/ReadingProgress';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 interface ArticlePageProps {
   params: Promise<{ slug: string }>;
@@ -92,7 +93,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         {/* Content */}
         <div
           className="article-content max-w-3xl"
-          dangerouslySetInnerHTML={{ __html: article.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
         />
         
         {/* Share */}

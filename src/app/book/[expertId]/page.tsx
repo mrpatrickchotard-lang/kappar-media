@@ -198,7 +198,8 @@ export default function BookingPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 accent-primary text-[var(--accent-gold)] rounded-lg hover:bg-[var(--accent-secondary)] transition-colors disabled:opacity-50"
+                  className="w-full py-3 rounded-lg transition-colors disabled:opacity-50"
+                  style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef' }}
                 >
                   {loading ? 'Processing...' : 'Continue to Payment'}
                 </button>

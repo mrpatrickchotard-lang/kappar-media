@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getAllPartners, getPartnerBySlug, getRelatedPartners } from '@/lib/partners';
 import { PartnerLogoLarge } from '@/components/PartnerLogo';
 import { PartnerCard } from '@/components/PartnerCard';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 export async function generateStaticParams() {
   const partners = getAllPartners();
@@ -258,7 +259,7 @@ export default async function PartnerDetailPage({
               <div
                 className="font-body text-base leading-relaxed prose-kappar"
                 style={{ color: 'var(--text-secondary)' }}
-                dangerouslySetInnerHTML={{ __html: partner.longDescription }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(partner.longDescription) }}
               />
             </div>
 

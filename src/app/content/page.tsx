@@ -1,5 +1,12 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getAllArticles, getCategories } from '@/lib/content';
 import { ArticleCard } from '@/components/ArticleCard';
+
+export const metadata: Metadata = {
+  title: 'Content | Kappar',
+  description: 'Explore insights, analysis, and expert perspectives on finance, technology, real estate, and business in the MENA region.',
+};
 
 interface ContentPageProps {
   searchParams: Promise<{ category?: string }>;
@@ -31,7 +38,7 @@ export default async function ContentPage({ searchParams }: ContentPageProps) {
 
         {/* Category Filter */}
         <div className="flex flex-wrap gap-3 mb-12">
-          <a
+          <Link
             href="/content"
             className="px-4 py-2 rounded-full text-sm font-body transition-colors"
             style={
@@ -41,9 +48,9 @@ export default async function ContentPage({ searchParams }: ContentPageProps) {
             }
           >
             All
-          </a>
+          </Link>
           {categories.map((category) => (
-            <a
+            <Link
               key={category}
               href={`/content?category=${category.toLowerCase()}`}
               className="px-4 py-2 rounded-full text-sm font-body transition-colors"
@@ -54,7 +61,7 @@ export default async function ContentPage({ searchParams }: ContentPageProps) {
               }
             >
               {category}
-            </a>
+            </Link>
           ))}
         </div>
 

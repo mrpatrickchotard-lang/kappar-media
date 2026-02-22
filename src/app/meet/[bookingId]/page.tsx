@@ -11,7 +11,13 @@ export default function MeetingPage() {
   const { bookingId } = useParams<{ bookingId: string }>();
   const expertId = searchParams.get('expert');
 
-  const [booking, setBooking] = useState<any>(null);
+  const [booking, setBooking] = useState<{
+    id: string;
+    expertId: string | null;
+    clientName: string;
+    scheduledEndTime: Date;
+    hourlyRate: number;
+  } | null>(null);
   const [callEnded, setCallEnded] = useState(false);
   const [finalCharge, setFinalCharge] = useState(0);
   const [actualMinutes, setActualMinutes] = useState(0);
@@ -82,7 +88,8 @@ export default function MeetingPage() {
             <div className="flex gap-4 justify-center">
               <Link
                 href="/experts"
-                className="px-6 py-3 accent-primary text-[var(--accent-gold)] rounded-lg hover:bg-[var(--accent-secondary)] transition-colors"
+                className="px-6 py-3 rounded-lg transition-colors"
+                style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef' }}
               >
                 Book Another
               </Link>              

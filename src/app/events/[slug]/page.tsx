@@ -5,6 +5,7 @@ import { getAllEvents, getEventBySlug, getUpcomingEvents } from '@/lib/events';
 import { EventRegistration } from '@/components/EventRegistration';
 import { EventCard } from '@/components/EventCard';
 import { EventCardVisual } from '@/components/EventCardVisual';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 export async function generateStaticParams() {
   const events = getAllEvents();
@@ -166,7 +167,7 @@ export default async function EventDetailPage({
             {/* Content */}
             <div
               className="article-content mb-12"
-              dangerouslySetInnerHTML={{ __html: event.content }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.content) }}
             />
 
             {/* Speakers */}
