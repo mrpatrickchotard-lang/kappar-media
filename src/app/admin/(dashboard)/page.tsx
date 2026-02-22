@@ -134,12 +134,13 @@ export default function AdminDashboardPage() {
           <h3 className="font-display text-lg text-primary mb-6">Quick Actions</h3>
           <div className="space-y-3">
             <Link
-              href="/admin/content/new"
+              href="/dashboard/writer/articles/new"
               className="flex items-center gap-3 p-4 bg-primary rounded-xl hover:border-secondary border border-transparent transition-all"
             >
-              <div className="w-10 h-10 rounded-full bg-[var(--accent-emerald)]/20 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(58,170,154,0.15)' }}>
                 <svg
-                  className="w-5 h-5 text-[var(--accent-emerald)]"
+                  className="w-5 h-5"
+                  style={{ color: 'var(--accent-emerald)' }}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -151,12 +152,13 @@ export default function AdminDashboardPage() {
             </Link>
 
             <Link
-              href="/admin/experts/new"
+              href="/admin/experts"
               className="flex items-center gap-3 p-4 bg-primary rounded-xl hover:border-secondary border border-transparent transition-all"
             >
-              <div className="w-10 h-10 rounded-full bg-[var(--accent-emerald)]/20 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(58,170,154,0.15)' }}>
                 <svg
-                  className="w-5 h-5 text-[var(--accent-emerald)]"
+                  className="w-5 h-5"
+                  style={{ color: 'var(--accent-emerald)' }}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -169,7 +171,53 @@ export default function AdminDashboardPage() {
                   />
                 </svg>
               </div>
-              <span className="text-primary">Add Expert</span>
+              <span className="text-primary">Manage Experts</span>
+            </Link>
+
+            <Link
+              href="/admin/users"
+              className="flex items-center gap-3 p-4 bg-primary rounded-xl hover:border-secondary border border-transparent transition-all"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(58,170,154,0.15)' }}>
+                <svg
+                  className="w-5 h-5"
+                  style={{ color: 'var(--accent-emerald)' }}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
+                </svg>
+              </div>
+              <span className="text-primary">Manage Users</span>
+            </Link>
+
+            <Link
+              href="/admin/database"
+              className="flex items-center gap-3 p-4 bg-primary rounded-xl hover:border-secondary border border-transparent transition-all"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(58,170,154,0.15)' }}>
+                <svg
+                  className="w-5 h-5"
+                  style={{ color: 'var(--accent-emerald)' }}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+                  />
+                </svg>
+              </div>
+              <span className="text-primary">Browse Database</span>
             </Link>
           </div>
         </div>

@@ -10,7 +10,7 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -27,7 +27,6 @@ export default function AdminLoginPage() {
         setError('Invalid credentials');
         setLoading(false);
       } else {
-        // Fetch session to get role for redirect
         const sessionRes = await fetch('/api/auth/session');
         const session = await sessionRes.json();
         const role = session?.user?.role || 'admin';
@@ -47,27 +46,59 @@ export default function AdminLoginPage() {
       setLoading(false);
     }
   };
-  
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-primary px-6">
+    <div
+      className="min-h-screen flex items-center justify-center px-6"
+      style={{ backgroundColor: 'var(--bg-primary)' }}
+    >
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="font-display text-3xl font-light tracking-wide text-primary mb-2">
+          <h1
+            className="font-display text-3xl font-light tracking-wide mb-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
             KAPPAR
           </h1>
-          <p className="text-secondary">Sign in to your dashboard</p>
+          <p style={{ color: 'var(--text-secondary)' }}>Sign in to your dashboard</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-card border border-primary rounded-2xl p-8">
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            backgroundColor: 'var(--bg-card)',
+            border: '1px solid var(--border-primary)',
+            borderRadius: '16px',
+            padding: '32px',
+          }}
+        >
           {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+            <div
+              style={{
+                marginBottom: '24px',
+                padding: '16px',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '8px',
+                color: '#ef4444',
+                fontSize: '14px',
+              }}
+            >
               {error}
             </div>
           )}
 
-          <div className="space-y-6">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <div>
-              <label htmlFor="email" className="block text-sm text-secondary mb-2">
+              <label
+                htmlFor="email"
+                style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  color: 'var(--text-secondary)',
+                  marginBottom: '8px',
+                }}
+              >
                 Email
               </label>
               <input
@@ -75,14 +106,32 @@ export default function AdminLoginPage() {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-primary border border-primary rounded-lg text-primary placeholder-tertiary focus:outline-none focus:border-[var(--accent-emerald)]"
                 placeholder="admin@kappar.tv"
                 required
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  backgroundColor: 'var(--bg-primary)',
+                  border: '1px solid var(--border-primary)',
+                  borderRadius: '8px',
+                  color: 'var(--text-primary)',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm text-secondary mb-2">
+              <label
+                htmlFor="password"
+                style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  color: 'var(--text-secondary)',
+                  marginBottom: '8px',
+                }}
+              >
                 Password
               </label>
               <input
@@ -90,16 +139,38 @@ export default function AdminLoginPage() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-primary border border-primary rounded-lg text-primary placeholder-tertiary focus:outline-none focus:border-[var(--accent-emerald)]"
                 placeholder="••••••••"
                 required
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  backgroundColor: 'var(--bg-primary)',
+                  border: '1px solid var(--border-primary)',
+                  borderRadius: '8px',
+                  color: 'var(--text-primary)',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 accent-primary text-[var(--accent-gold)] rounded-lg hover:bg-[var(--accent-secondary)] transition-colors disabled:opacity-50"
+              style={{
+                width: '100%',
+                padding: '12px',
+                backgroundColor: 'var(--teal)',
+                color: 'white',
+                borderRadius: '8px',
+                border: 'none',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.5 : 1,
+                transition: 'opacity 0.2s',
+              }}
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>

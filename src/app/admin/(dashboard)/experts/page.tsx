@@ -4,20 +4,31 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getExperts } from '@/lib/expert-db';
 
+interface Expert {
+  id: string;
+  name: string;
+  title: string;
+  company: string;
+  expertise: string[];
+  hourlyRate: number;
+  verified: boolean;
+  featured: boolean;
+}
+
 export default function AdminExpertsPage() {
-  const [experts, setExperts] = useState<any[]>([]);
+  const [experts, setExperts] = useState<Expert[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     try {
       const data = getExperts();
-      setExperts(data);
+      setExperts(data as Expert[]);
       setLoading(false);
-    } catch (error) {
+    } catch {
       setLoading(false);
     }
   }, []);
-  
+
   if (loading) {
     return (
       <div>
@@ -32,56 +43,271 @@ export default function AdminExpertsPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-display text-3xl font-light tracking-wide text-primary">Experts</h1>
-          <p className="text-secondary mt-2">Manage your expert network</p>        </div>
-        <Link
-          href="/admin/experts/new"
-          className="px-6 py-3 accent-primary text-[var(--accent-gold)] rounded-lg hover:bg-[var(--accent-secondary)] transition-colors"
+          <p className="text-secondary mt-2">Manage your expert network</p>
+        </div>
+      </div>
+
+      <div
+        style={{
+          backgroundColor: 'var(--bg-card)',
+          border: '1px solid var(--border-primary)',
+          borderRadius: '16px',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: 'var(--bg-primary)',
+            borderBottom: '1px solid var(--border-primary)',
+            padding: '20px 24px',
+          }}
         >
-          Add Expert
-        </Link>      </div>      
-      
-      <div className="bg-card border border-primary rounded-2xl overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-primary border-b border-primary">
-            <tr>
-              <th className="text-left py-4 px-6 text-sm font-medium text-secondary">Expert</th>              
-              <th className="text-left py-4 px-6 text-sm font-medium text-secondary">Expertise</th>              
-              <th className="text-left py-4 px-6 text-sm font-medium text-secondary">Rate</th>              
-              <th className="text-left py-4 px-6 text-sm font-medium text-secondary">Status</th>              
-              <th className="text-right py-4 px-6 text-sm font-medium text-secondary">Actions</th>            </tr>          </thead>          
-          <tbody className="divide-y divide-primary">
-            {experts.map((expert) => (
-              <tr key={expert.id} className="hover:bg-primary/50 transition-colors">
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full accent-primary flex items-center justify-center">
-                      <span className="text-[var(--accent-gold)] font-display">{expert.name.charAt(0)}</span>                    </div>                    
-                    <div>
-                      <p className="text-primary font-medium">{expert.name}</p>                      
-                      <p className="text-sm text-tertiary">{expert.title} at {expert.company}</p>                    </div>                  </div>                </td>                
-                <td className="py-4 px-6">
-                  <div className="flex flex-wrap gap-1">
-                    {expert.expertise.slice(0, 2).map((exp: string) => (
-                      <span key={exp} className="tag tag-outline text-[10px]">{exp}</span>                    ))}                    
-                    {expert.expertise.length > 2 && (
-                      <span className="tag tag-outline text-[10px]">+{expert.expertise.length - 2}</span>                    )}                  </div>                </td>                
-                <td className="py-4 px-6">
-                  <p className="text-primary">${expert.hourlyRate}/hr</p>                </td>                
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-2">
-                    {expert.verified && (
-                      <span className="px-2 py-1 bg-[var(--accent-emerald)]/20 text-[var(--accent-emerald)] text-xs rounded-full">
-                        Verified
-                      </span>                    )}                    
-                    {expert.featured && (
-                      <span className="px-2 py-1 bg-[var(--accent-gold)]/20 text-[var(--accent-gold)] text-xs rounded-full">
-                        Featured
-                      </span>                    )}                  </div>                </td>                
-                <td className="py-4 px-6 text-right">
-                  <Link
-                    href={`/admin/experts/${expert.id}`}
-                    className="text-sm text-[var(--accent-emerald)] hover:underline"
+          <p
+            style={{
+              color: 'var(--text-secondary)',
+              fontSize: '14px',
+              fontWeight: 500,
+              margin: 0,
+            }}
+          >
+            Total Experts: {experts.length}
+          </p>
+        </div>
+
+        {experts.length === 0 ? (
+          <div
+            style={{
+              padding: '40px',
+              textAlign: 'center',
+              color: 'var(--text-tertiary)',
+            }}
+          >
+            <p>No experts yet.</p>
+          </div>
+        ) : (
+          <table style={{ width: '100%' }}>
+            <thead>
+              <tr
+                style={{
+                  backgroundColor: 'var(--bg-primary)',
+                  borderBottom: '1px solid var(--border-primary)',
+                }}
+              >
+                <th
+                  style={{
+                    textAlign: 'left',
+                    padding: '16px 24px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  Expert
+                </th>
+                <th
+                  style={{
+                    textAlign: 'left',
+                    padding: '16px 24px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  Expertise
+                </th>
+                <th
+                  style={{
+                    textAlign: 'left',
+                    padding: '16px 24px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  Rate
+                </th>
+                <th
+                  style={{
+                    textAlign: 'left',
+                    padding: '16px 24px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  Status
+                </th>
+                <th
+                  style={{
+                    textAlign: 'right',
+                    padding: '16px 24px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody style={{ borderTop: '1px solid var(--border-primary)' }}>
+              {experts.map((expert, index) => (
+                <tr
+                  key={expert.id}
+                  style={{
+                    borderBottom:
+                      index < experts.length - 1
+                        ? '1px solid var(--border-primary)'
+                        : 'none',
+                    transition: 'background-color 0.2s',
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = 'var(--bg-primary)')
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = 'transparent')
+                  }
+                >
+                  <td style={{ padding: '16px 24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          backgroundColor: 'rgba(42, 138, 122, 0.15)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <span
+                          style={{
+                            color: 'var(--teal)',
+                            fontFamily: 'var(--font-display)',
+                            fontSize: '16px',
+                          }}
+                        >
+                          {expert.name.charAt(0)}
+                        </span>
+                      </div>
+                      <div>
+                        <p
+                          style={{
+                            color: 'var(--text-primary)',
+                            fontSize: '14px',
+                            fontWeight: 500,
+                            margin: 0,
+                          }}
+                        >
+                          {expert.name}
+                        </p>
+                        <p
+                          style={{
+                            color: 'var(--text-tertiary)',
+                            fontSize: '12px',
+                            margin: '2px 0 0',
+                          }}
+                        >
+                          {expert.title} at {expert.company}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td style={{ padding: '16px 24px' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                      {expert.expertise.slice(0, 2).map((exp: string) => (
+                        <span
+                          key={exp}
+                          style={{
+                            display: 'inline-block',
+                            padding: '3px 8px',
+                            backgroundColor: 'var(--bg-primary)',
+                            border: '1px solid var(--border-primary)',
+                            color: 'var(--text-secondary)',
+                            fontSize: '11px',
+                            borderRadius: '4px',
+                          }}
+                        >
+                          {exp}
+                        </span>
+                      ))}
+                      {expert.expertise.length > 2 && (
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '3px 8px',
+                            color: 'var(--text-tertiary)',
+                            fontSize: '11px',
+                          }}
+                        >
+                          +{expert.expertise.length - 2}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td
+                    style={{
+                      padding: '16px 24px',
+                      color: 'var(--text-primary)',
+                      fontSize: '14px',
+                    }}
                   >
-                    Edit
-                  </Link>                </td>              </tr>            ))}          </tbody>        </table>      </div>    </div>  );
+                    ${expert.hourlyRate}/hr
+                  </td>
+                  <td style={{ padding: '16px 24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {expert.verified && (
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '4px 10px',
+                            backgroundColor: 'rgba(58, 170, 154, 0.15)',
+                            color: 'var(--accent-emerald, #3aaa9a)',
+                            fontSize: '11px',
+                            borderRadius: '9999px',
+                            fontWeight: 500,
+                          }}
+                        >
+                          Verified
+                        </span>
+                      )}
+                      {expert.featured && (
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '4px 10px',
+                            backgroundColor: 'rgba(212, 175, 55, 0.15)',
+                            color: 'var(--accent-gold)',
+                            fontSize: '11px',
+                            borderRadius: '9999px',
+                            fontWeight: 500,
+                          }}
+                        >
+                          Featured
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                    <Link
+                      href={`/admin/experts/${expert.id}`}
+                      style={{
+                        color: 'var(--teal)',
+                        fontSize: '13px',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      View
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
 }

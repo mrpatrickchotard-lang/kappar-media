@@ -32,7 +32,7 @@ export default function AdminContentPage() {
           <p className="text-secondary mt-2">Manage your published articles</p>
         </div>
         <Link
-          href="/admin/content/new"
+          href="/dashboard/writer/articles/new"
           style={{
             padding: '12px 24px',
             backgroundColor: 'var(--teal)',
@@ -257,7 +257,7 @@ export default function AdminContentPage() {
                     textAlign: 'right'
                   }}>
                     <Link
-                      href={`/admin/content/${article.slug}`}
+                      href={`/articles/${article.slug}`}
                       style={{
                         color: 'var(--teal)',
                         fontSize: '13px',
