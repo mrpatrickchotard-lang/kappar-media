@@ -22,14 +22,9 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-4 mb-6">
               <Logo variant="teal" size={48} />
-              <div className="flex flex-col">
-                <span className="font-display text-2xl font-light tracking-[0.4em] uppercase" style={{ color: 'var(--text-primary)' }}>
-                  KAPPAR
-                </span>
-                <span className="text-[10px] tracking-[0.5em] uppercase" style={{ color: 'var(--teal)' }}>
-                  MEDIA
-                </span>
-              </div>
+              <span className="font-display text-2xl font-light tracking-[0.4em] uppercase" style={{ color: 'var(--text-primary)' }}>
+                KAPPAR
+              </span>
             </Link>
             <p className="text-sm leading-relaxed max-w-sm" style={{ color: 'var(--text-tertiary)' }}>
               Forward media for business leaders. Insights, interviews, and expert perspectives from Dubai to the world.

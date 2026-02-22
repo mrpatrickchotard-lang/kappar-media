@@ -30,14 +30,9 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-4">
             <Logo variant="teal" size={40} />
-            <div className="hidden sm:flex flex-col">
-              <span className="font-display text-xl font-light tracking-[0.35em] uppercase" style={{ color: 'var(--text-primary)' }}>
-                KAPPAR
-              </span>
-              <span className="text-[9px] tracking-[0.45em] uppercase" style={{ color: 'var(--teal)' }}>
-                MEDIA
-              </span>
-            </div>
+            <span className="hidden sm:inline font-display text-xl font-light tracking-[0.35em] uppercase" style={{ color: 'var(--text-primary)' }}>
+              KAPPAR
+            </span>
           </Link>
 
           {/* Desktop Nav */}

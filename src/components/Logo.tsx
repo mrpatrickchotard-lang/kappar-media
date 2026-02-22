@@ -36,35 +36,20 @@ export function Logo({ className = '', variant = 'teal', size = 40 }: LogoProps)
   );
 }
 
-interface LogoWithTextProps extends LogoProps {
-  showTagline?: boolean;
-}
-
 export function LogoWithText({
   className = '',
   variant = 'teal',
   size = 48,
-  showTagline = true
-}: LogoWithTextProps) {
+}: LogoProps) {
   return (
     <div className={`flex items-center gap-5 ${className}`}>
       <Logo variant={variant} size={size} />
-      <div className="flex flex-col">
-        <span
-          className="font-display text-2xl font-light tracking-[0.4em] uppercase"
-          style={{ color: 'var(--text-primary)' }}
-        >
-          KAPPAR
-        </span>
-        {showTagline && (
-          <span
-            className="text-[10px] tracking-[0.5em] uppercase font-body"
-            style={{ color: 'var(--teal)' }}
-          >
-            MEDIA
-          </span>
-        )}
-      </div>
+      <span
+        className="font-display text-2xl font-light tracking-[0.4em] uppercase"
+        style={{ color: 'var(--text-primary)' }}
+      >
+        KAPPAR
+      </span>
     </div>
   );
 }
