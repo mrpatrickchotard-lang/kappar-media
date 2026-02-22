@@ -96,7 +96,7 @@ export default async function AdminLayout({
       </div>
 
       {/* Main content - extra top padding on mobile for double nav bar */}
-      <main className="pt-14 lg:pt-14 max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8">
+      <main className="pt-24 lg:pt-24 max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-8">
         <div className="lg:hidden h-10" /> {/* Spacer for mobile nav */}
         {children}
       </main>
