@@ -27,7 +27,18 @@ export default function AdminLoginPage() {
         setError('Invalid credentials');
         setLoading(false);
       } else {
-        router.push('/admin');
+        // Fetch session to get role for redirect
+        const sessionRes = await fetch('/api/auth/session');
+        const session = await sessionRes.json();
+        const role = session?.user?.role || 'admin';
+
+        if (role === 'writer') {
+          router.push('/dashboard/writer');
+        } else if (role === 'partner') {
+          router.push('/dashboard/partner');
+        } else {
+          router.push('/admin');
+        }
       }
     } catch (err) {
       const errorMessage =
@@ -42,9 +53,9 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="font-display text-3xl font-light tracking-wide text-primary mb-2">
-            KAPPAR ADMIN
+            KAPPAR
           </h1>
-          <p className="text-secondary">Sign in to manage content and experts</p>
+          <p className="text-secondary">Sign in to your dashboard</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-card border border-primary rounded-2xl p-8">

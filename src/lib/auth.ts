@@ -7,11 +7,23 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
       id: string;
+      role: string;
+      partnerId?: number;
     };
   }
 
+  interface User {
+    id: string;
+    role?: string;
+    partnerId?: number;
+  }
+}
+
+declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
+    role?: string;
+    partnerId?: number;
   }
 }
 
@@ -42,6 +54,8 @@ export const authOptions: NextAuthOptions = {
           id: user.id.toString(),
           email: user.email,
           name: user.name,
+          role: user.role || 'admin',
+          partnerId: (user as Record<string, unknown>).partnerId as number | undefined,
         };
       },
     }),
@@ -56,12 +70,16 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = user.role || 'admin';
+        token.partnerId = user.partnerId;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = (token.id as string) || "";
+        session.user.role = (token.role as string) || "admin";
+        session.user.partnerId = token.partnerId as number | undefined;
       }
       return session;
     },
