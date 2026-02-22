@@ -64,7 +64,7 @@ export default function PartnerDashboard() {
         }
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => { setError('Failed to load partner data'); setLoading(false); });
   }, []);
 
   const handleSave = async () => {

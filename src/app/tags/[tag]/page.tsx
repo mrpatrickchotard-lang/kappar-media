@@ -54,5 +54,9 @@ export default async function TagPage({ params }: TagPageProps) {
                 <p className="text-tertiary text-lg">No articles found with this tag.</p>
               </div>
             )}
-          </div>        </div>      </div>    </div>  );
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

@@ -23,6 +23,7 @@ const statusColors: Record<string, { bg: string; text: string }> = {
 export default function WriterDashboard() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
 
   useEffect(() => {
     fetch('/api/articles')
@@ -31,7 +32,10 @@ export default function WriterDashboard() {
         setArticles(data.articles || []);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setFetchError('Failed to load your articles');
+        setLoading(false);
+      });
   }, []);
 
   const counts = {
@@ -78,6 +82,13 @@ export default function WriterDashboard() {
           </div>
         ))}
       </div>
+
+      {/* Error */}
+      {fetchError && (
+        <div className="mb-4 p-4 rounded-xl" style={{ backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
+          <p className="text-sm" style={{ color: '#ef4444' }}>{fetchError}</p>
+        </div>
+      )}
 
       {/* Articles Table */}
       <div className="rounded-xl overflow-hidden" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}>

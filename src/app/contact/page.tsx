@@ -130,7 +130,7 @@ export default function ContactPage() {
                       onChange={(e) => setFormState({ ...formState, subject: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl font-body focus:outline-none transition-colors appearance-none cursor-pointer"
                       style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }}>
-                      <option value="">Select a subject</option>
+                      <option value="" disabled>Select a subject</option>
                       <option value="general">General Inquiry</option>
                       <option value="partnership">Partnership Opportunity</option>
                       <option value="contribute">Contribute Content</option>
@@ -147,7 +147,7 @@ export default function ContactPage() {
                       placeholder="Tell us what's on your mind..." />
                   </div>
                   <button type="submit" disabled={loading}
-                    className="w-full px-8 py-4 font-body rounded-xl transition-colors disabled:opacity-50"
+                    className="w-full px-8 py-4 font-body rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef', border: '1px solid var(--teal-light, #3aaa9a)' }}>
                     {loading ? 'Sending...' : 'Send Message'}
                   </button>

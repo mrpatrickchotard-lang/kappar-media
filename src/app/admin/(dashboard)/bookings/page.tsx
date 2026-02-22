@@ -16,13 +16,15 @@ export default function AdminBookingsPage() {
   }>>([]);
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     try {
       const data = getBookings();
       setBookings(data);
       setLoading(false);
-    } catch (error) {
+    } catch {
+      setError('Failed to load bookings');
       setLoading(false);
     }
   }, []);
@@ -48,7 +50,21 @@ export default function AdminBookingsPage() {
     return (
       <div>
         <h1 className="font-display text-3xl font-light tracking-wide text-primary">Bookings</h1>
-        <p className="text-secondary mt-2">Loading...</p>
+        <div className="mt-4 flex items-center gap-3">
+          <div className="w-5 h-5 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--teal)', borderTopColor: 'transparent' }} />
+          <p className="text-secondary text-sm">Loading bookings...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <h1 className="font-display text-3xl font-light tracking-wide text-primary">Bookings</h1>
+        <div className="mt-4 p-4 rounded-xl" style={{ backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
+          <p className="text-sm" style={{ color: '#ef4444' }}>{error}</p>
+        </div>
       </div>
     );
   }

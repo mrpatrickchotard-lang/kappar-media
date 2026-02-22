@@ -26,11 +26,13 @@ export default function UsersPage() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
 
+  const [fetchError, setFetchError] = useState('');
+
   const fetchUsers = () => {
     fetch('/api/users')
       .then(res => res.json())
       .then(data => { setUsers(data.users || []); setLoading(false); })
-      .catch(() => setLoading(false));
+      .catch(() => { setFetchError('Failed to load users'); setLoading(false); });
   };
 
   useEffect(() => { fetchUsers(); }, []);
@@ -38,6 +40,10 @@ export default function UsersPage() {
   const handleCreate = async () => {
     if (!newUser.email || !newUser.password || !newUser.name) {
       setError('All fields required');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newUser.email)) {
+      setError('Please enter a valid email address');
       return;
     }
     setCreating(true);
@@ -65,16 +71,20 @@ export default function UsersPage() {
     }
   };
 
+  const [toggleError, setToggleError] = useState('');
+
   const toggleActive = async (user: User) => {
+    setToggleError('');
     try {
-      await fetch('/api/users', {
+      const res = await fetch('/api/users', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: user.id, active: !user.active }),
       });
+      if (!res.ok) throw new Error('Failed to update user');
       fetchUsers();
     } catch {
-      // Silent
+      setToggleError(`Failed to ${user.active ? 'disable' : 'enable'} ${user.name}`);
     }
   };
 
@@ -160,6 +170,13 @@ export default function UsersPage() {
               Cancel
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Error messages */}
+      {(fetchError || toggleError) && (
+        <div className="mb-4 p-4 rounded-xl" style={{ backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
+          <p className="text-sm" style={{ color: '#ef4444' }}>{fetchError || toggleError}</p>
         </div>
       )}
 

@@ -22,6 +22,7 @@ interface Event {
 export default function AdminEventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetch('/api/events')
@@ -30,7 +31,10 @@ export default function AdminEventsPage() {
         setEvents(data.events || data || []);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setError('Failed to load events');
+        setLoading(false);
+      });
   }, []);
 
   const getStatusStyle = (status: string) => {
@@ -52,7 +56,21 @@ export default function AdminEventsPage() {
     return (
       <div>
         <h1 className="font-display text-3xl font-light tracking-wide text-primary">Events</h1>
-        <p className="text-secondary mt-2">Loading...</p>
+        <div className="mt-4 flex items-center gap-3">
+          <div className="w-5 h-5 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--teal)', borderTopColor: 'transparent' }} />
+          <p className="text-secondary text-sm">Loading events...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <h1 className="font-display text-3xl font-light tracking-wide text-primary">Events</h1>
+        <div className="mt-4 p-4 rounded-xl" style={{ backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
+          <p className="text-sm" style={{ color: '#ef4444' }}>{error}</p>
+        </div>
       </div>
     );
   }
