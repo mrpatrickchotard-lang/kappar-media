@@ -113,6 +113,30 @@ const articles: Article[] = [
     featured: false,
     readingTime: 4,
   },
+  {
+    slug: 'dubai-luxury-real-estate-2026',
+    title: 'Dubai Luxury Real Estate: What\'s Driving the 2026 Boom',
+    excerpt: 'Record-breaking transactions, global capital flows, and new mega-projects are reshaping Dubai\'s premium property market.',
+    content: '<h2>A Market in Overdrive</h2><p>Dubai\'s luxury real estate market continues to defy global headwinds, with 2026 shaping up to be another record year. Ultra-high-net-worth individuals from Europe, Asia, and the Americas are diversifying into Dubai property at unprecedented rates, drawn by tax advantages, golden visa pathways, and world-class lifestyle offerings.</p><h3>Key Drivers</h3><p>Several factors are fueling the boom: the expansion of branded residences (Bulgari, Armani, Dorchester Collection), the launch of new waterfront mega-projects, and increasing demand from tech entrepreneurs relocating to the emirate. Palm Jebel Ali\'s revival has added fresh momentum to the ultra-prime segment.</p><h3>Investment Outlook</h3><p>Average yields in prime Dubai remain attractive at 5-7%, significantly outperforming London and New York. However, investors should be mindful of rising construction costs and the importance of selecting developments with proven operators and strong rental demand fundamentals.</p>',
+    date: '2026-02-18T09:00:00Z',
+    author: 'James O\'Connor',
+    category: 'Real Estate',
+    tags: ['Dubai', 'Luxury Property', 'Investment', 'Real Estate'],
+    featured: true,
+    readingTime: 6,
+  },
+  {
+    slug: 'proptech-transforming-mena-real-estate',
+    title: 'How PropTech Is Transforming MENA Real Estate',
+    excerpt: 'From AI-powered valuations to blockchain title deeds, technology is revolutionizing property transactions across the Middle East.',
+    content: '<h2>The PropTech Revolution</h2><p>The MENA region is witnessing a surge in property technology adoption. Governments and private developers alike are embracing digital solutions to streamline transactions, improve transparency, and enhance the buyer experience.</p><h3>Digital Title Deeds</h3><p>Dubai Land Department\'s blockchain-based title deed system has set a global benchmark. The platform enables instant property transfers, reduces fraud, and makes cross-border transactions seamless. Other GCC nations are following suit with their own digital property registries.</p><h3>AI in Valuation</h3><p>Machine learning models are now capable of pricing properties with remarkable accuracy by analyzing thousands of comparable transactions, market trends, and location-specific factors. This technology is democratizing access to institutional-grade market intelligence for individual investors.</p>',
+    date: '2026-02-02T11:00:00Z',
+    author: 'Mohammed Al-Rashid',
+    category: 'Real Estate',
+    tags: ['PropTech', 'Blockchain', 'AI', 'MENA', 'Real Estate'],
+    featured: false,
+    readingTime: 5,
+  },
 ];
 
 export async function getAllArticles(): Promise<Article[]> {
@@ -133,7 +157,7 @@ export async function getLatestArticles(limit: number = 6): Promise<Article[]> {
 }
 
 export function getCategories(): string[] {
-  return ['Tech', 'Business', 'Marketing', 'Lifestyle'];
+  return ['Tech', 'Business', 'Marketing', 'Lifestyle', 'Real Estate'];
 }
 
 export async function getAllTags(): Promise<string[]> {

@@ -122,12 +122,13 @@ export default async function HomePage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {[
               { name: 'Tech', desc: 'AI, fintech & digital innovation' },
               { name: 'Business', desc: 'Strategy, leadership & growth' },
               { name: 'Marketing', desc: 'Branding, content & reach' },
               { name: 'Lifestyle', desc: 'Wellness, travel & balance' },
+              { name: 'Real Estate', desc: 'Property, development & investment' },
             ].map((category) => (
               <Link
                 key={category.name}

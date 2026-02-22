@@ -44,6 +44,21 @@ export function CategoryIcon({ category, size = 28, className = '' }: CategoryIc
         <circle cx="12" cy="12" r="1" fill="currentColor" />
       </svg>
     ),
+    'real estate': (
+      // Building / property icon
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <rect x="3" y="8" width="7" height="14" rx="1" />
+        <rect x="14" y="3" width="7" height="19" rx="1" />
+        <line x1="6" y1="11" x2="6" y2="11.01" />
+        <line x1="6" y1="14" x2="6" y2="14.01" />
+        <line x1="6" y1="17" x2="6" y2="17.01" />
+        <line x1="17.5" y1="7" x2="17.5" y2="7.01" />
+        <line x1="17.5" y1="10" x2="17.5" y2="10.01" />
+        <line x1="17.5" y1="13" x2="17.5" y2="13.01" />
+        <line x1="17.5" y1="16" x2="17.5" y2="16.01" />
+        <line x1="10" y1="22" x2="14" y2="22" />
+      </svg>
+    ),
     events: (
       // Calendar with star icon
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>

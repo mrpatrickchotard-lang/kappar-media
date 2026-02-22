@@ -43,6 +43,12 @@ const categoryPalettes: Record<string, { bg: string; accent1: string; accent2: s
     accent2: 'rgba(245,243,239,0.15)',
     accent3: 'rgba(26,106,90,0.4)',
   },
+  'real estate': {
+    bg: 'rgba(30,80,90,0.9)',
+    accent1: 'rgba(42,138,122,0.5)',
+    accent2: 'rgba(216,205,184,0.35)',
+    accent3: 'rgba(168,152,128,0.25)',
+  },
 };
 
 export function ArticleCardVisual({ category, slug, className = '' }: ArticleCardVisualProps) {
@@ -149,6 +155,26 @@ export function ArticleCardVisual({ category, slug, className = '' }: ArticleCar
         <circle cx={`${60 + ((h >> 5) % 20)}%`} cy={`${25 + ((h >> 7) % 25)}%`} r="4" fill={palette.accent3} opacity="0.4" />
         <circle cx={`${80 + ((h >> 2) % 10)}%`} cy={`${60 + ((h >> 8) % 20)}%`} r="8" fill={palette.accent2} opacity="0.3" />
         <circle cx={`${35 + ((h >> 6) % 15)}%`} cy={`${70 + ((h >> 4) % 15)}%`} r="3" fill={palette.accent1} opacity="0.6" />
+      </>
+    ),
+    'real estate': (
+      <>
+        {/* Skyline / building silhouettes */}
+        <rect x={`${10 + (h % 8)}%`} y={`${35 + (h % 15)}%`} width="8%" height={`${45 + (h % 15)}%`} fill={palette.accent1} rx="1" />
+        <rect x={`${22 + (h % 6)}%`} y={`${25 + ((h >> 3) % 12)}%`} width="10%" height={`${55 + ((h >> 3) % 12)}%`} fill={palette.accent2} rx="1" />
+        <rect x={`${36 + (h % 5)}%`} y={`${18 + ((h >> 5) % 18)}%`} width="7%" height={`${62 + ((h >> 5) % 10)}%`} fill={palette.accent1} rx="1" />
+        <rect x={`${48 + (h % 7)}%`} y={`${30 + ((h >> 7) % 14)}%`} width="12%" height={`${50 + ((h >> 7) % 12)}%`} fill={palette.accent3} rx="1" />
+        <rect x={`${65 + (h % 6)}%`} y={`${22 + ((h >> 9) % 16)}%`} width="9%" height={`${58 + ((h >> 9) % 10)}%`} fill={palette.accent2} rx="1" />
+        <rect x={`${78 + (h % 5)}%`} y={`${38 + ((h >> 2) % 12)}%`} width="8%" height={`${42 + ((h >> 2) % 12)}%`} fill={palette.accent1} rx="1" />
+        {/* Ground line */}
+        <line x1="0" y1="85%" x2="100%" y2="85%" stroke={palette.accent2} strokeWidth="0.5" opacity="0.5" />
+        {/* Window dots on tallest building */}
+        <circle cx={`${39 + (h % 5)}%`} cy={`${30 + ((h >> 5) % 10)}%`} r="1" fill={palette.accent2} opacity="0.6" />
+        <circle cx={`${39 + (h % 5)}%`} cy={`${40 + ((h >> 5) % 8)}%`} r="1" fill={palette.accent2} opacity="0.6" />
+        <circle cx={`${39 + (h % 5)}%`} cy={`${50 + ((h >> 5) % 6)}%`} r="1" fill={palette.accent2} opacity="0.6" />
+        {/* Crane line */}
+        <line x1={`${80}%`} y1={`${15 + (h % 10)}%`} x2={`${90}%`} y2={`${15 + (h % 10)}%`} stroke={palette.accent3} strokeWidth="0.5" opacity="0.4" />
+        <line x1={`${82}%`} y1={`${15 + (h % 10)}%`} x2={`${82}%`} y2={`${35 + ((h >> 2) % 10)}%`} stroke={palette.accent3} strokeWidth="0.5" opacity="0.4" />
       </>
     ),
   };
