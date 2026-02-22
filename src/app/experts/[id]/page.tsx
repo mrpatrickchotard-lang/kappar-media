@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { TagList } from '@/components/TagCloud';
 import BookingCalendar from '@/components/BookingCalendar';
+import { ExpertAvatar } from '@/components/ExpertAvatar';
 
 interface ExpertPageProps {
   params: Promise<{ id: string }>;
@@ -42,9 +43,7 @@ export default async function ExpertDetailPage({ params }: ExpertPageProps) {
             </Link>
             
             <div className="flex items-start gap-6 mb-8">
-              <div className="w-24 h-24 rounded-full accent-primary flex items-center justify-center flex-shrink-0">
-                <span className="text-4xl text-[var(--accent-gold)] font-display">{expert.name.charAt(0)}</span>
-              </div>
+              <ExpertAvatar name={expert.name} id={expert.id} size={96} />
               
               <div className="flex-grow">
                 <div className="flex items-center gap-3 mb-2">

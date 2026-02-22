@@ -3,6 +3,7 @@ import { getFeaturedArticles, getLatestArticles } from '@/lib/content';
 import { ArticleCard } from '@/components/ArticleCard';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
 import { Logo } from '@/components/Logo';
+import { CategoryIcon } from '@/components/CategoryIcon';
 
 export default async function HomePage() {
   const featuredArticles = await getFeaturedArticles();
@@ -13,13 +14,14 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero */}
+      {/* Hero with animated gradient */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-        {/* Background */}
+        {/* Animated background */}
         <div className="absolute inset-0" style={{ background: 'var(--bg-primary)' }}>
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom right, rgba(42,138,122,0.18), transparent 50%, rgba(42,138,122,0.08))' }}></div>
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl" style={{ background: 'rgba(42,138,122,0.15)' }}></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl" style={{ background: 'rgba(42,138,122,0.08)' }}></div>
+          <div className="hero-gradient-animate absolute inset-0"></div>
+          <div className="hero-orb hero-orb-1 absolute w-[500px] h-[500px] rounded-full blur-3xl"></div>
+          <div className="hero-orb hero-orb-2 absolute w-[400px] h-[400px] rounded-full blur-3xl"></div>
+          <div className="hero-orb hero-orb-3 absolute w-[300px] h-[300px] rounded-full blur-3xl"></div>
         </div>
 
         <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-8 text-center">
@@ -42,7 +44,7 @@ export default async function HomePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/content"
-              className="px-8 py-4 font-body rounded-xl transition-colors border"
+              className="px-8 py-4 font-body rounded-xl transition-all border hover:shadow-lg hover:shadow-[var(--teal)]/20 hover:-translate-y-0.5"
               style={{
                 backgroundColor: 'var(--accent-primary)',
                 color: '#f5f3ef',
@@ -53,7 +55,7 @@ export default async function HomePage() {
             </Link>
             <Link
               href="/newsletter"
-              className="px-8 py-4 bg-transparent font-body rounded-xl transition-colors border"
+              className="px-8 py-4 bg-transparent font-body rounded-xl transition-all border hover:border-[var(--teal)] hover:-translate-y-0.5"
               style={{
                 color: 'var(--text-primary)',
                 borderColor: 'var(--border-secondary)',
@@ -84,7 +86,7 @@ export default async function HomePage() {
                 Latest Insights
               </h2>
             </div>
-            <Link href="/content" className="text-sm transition-colors" style={{ color: 'var(--text-secondary)' }}>
+            <Link href="/content" className="text-sm transition-colors hover:text-[var(--teal)]" style={{ color: 'var(--text-secondary)' }}>
               View All →
             </Link>
           </div>
@@ -105,7 +107,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Categories */}
+      {/* Categories with SVG icons */}
       <section className="py-24 border-y" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -118,27 +120,33 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {['Tech', 'Business', 'Marketing', 'Lifestyle'].map((category) => (
+            {[
+              { name: 'Tech', desc: 'AI, fintech & digital innovation' },
+              { name: 'Business', desc: 'Strategy, leadership & growth' },
+              { name: 'Marketing', desc: 'Branding, content & reach' },
+              { name: 'Lifestyle', desc: 'Wellness, travel & balance' },
+            ].map((category) => (
               <Link
-                key={category}
-                href={`/content?category=${category.toLowerCase()}`}
-                className="group p-8 rounded-2xl transition-all text-center"
+                key={category.name}
+                href={`/content?category=${category.name.toLowerCase()}`}
+                className="group p-8 rounded-2xl transition-all text-center card-hover-light"
                 style={{
                   backgroundColor: 'var(--bg-card)',
                   border: '1px solid var(--border-primary)',
                 }}
               >
                 <div
-                  className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center transition-colors"
+                  className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center transition-all group-hover:scale-110"
                   style={{ background: 'rgba(42,138,122,0.15)' }}
                 >
-                  <span className="font-display text-2xl" style={{ color: 'var(--teal)' }}>
-                    {category[0]}
-                  </span>
+                  <CategoryIcon category={category.name} size={28} className="text-[var(--teal)]" />
                 </div>
-                <h3 className="font-display text-lg font-light tracking-wide transition-colors" style={{ color: 'var(--text-primary)' }}>
-                  {category}
+                <h3 className="font-display text-lg font-light tracking-wide transition-colors mb-1" style={{ color: 'var(--text-primary)' }}>
+                  {category.name}
                 </h3>
+                <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                  {category.desc}
+                </p>
               </Link>
             ))}
           </div>

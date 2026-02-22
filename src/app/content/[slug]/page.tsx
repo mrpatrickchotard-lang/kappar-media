@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getArticleBySlug, getAllArticles, getRelatedArticles } from '@/lib/content';
 import { TagList } from '@/components/TagCloud';
 import CopyLinkButton from '@/components/CopyLinkButton';
+import { ReadingProgress } from '@/components/ReadingProgress';
 
 interface ArticlePageProps {
   params: Promise<{ slug: string }>;
@@ -27,6 +28,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   
   return (
     <article className="min-h-screen pt-32 pb-24">
+      <ReadingProgress />
       <div className="max-w-4xl mx-auto px-6 lg:px-8">
         {/* Back Link */}
         <Link

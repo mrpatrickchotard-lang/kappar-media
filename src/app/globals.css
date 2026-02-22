@@ -199,14 +199,35 @@ body {
   color: var(--teal);
 }
 
-/* Card hover effects */
+/* Card hover effects — enhanced lift + teal accent */
 .card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(42, 138, 122, 0.15);
+}
+
+/* Light card hover — for cards in any context */
+.card-hover-light {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card-hover-light:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(42, 138, 122, 0.12);
+}
+
+/* Light mode: stronger card contrast */
+[data-theme="light"] .card-hover-light,
+[data-theme="light"] .card-hover {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .card-hover-light:hover,
+[data-theme="light"] .card-hover:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(42, 138, 122, 0.2);
 }
 
 /* Button hover effects */
@@ -217,6 +238,61 @@ body {
 .btn-primary:hover {
   opacity: 0.9;
   box-shadow: 0 4px 15px rgba(42, 138, 122, 0.3);
+}
+
+/* Hero animated gradient */
+.hero-gradient-animate {
+  background: linear-gradient(135deg, rgba(42,138,122,0.18), transparent 40%, rgba(42,138,122,0.08) 70%, transparent);
+  animation: heroGradientShift 8s ease-in-out infinite alternate;
+}
+
+@keyframes heroGradientShift {
+  0% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; transform: scale(1.05); }
+}
+
+.hero-orb {
+  animation: heroOrbFloat 12s ease-in-out infinite;
+}
+
+.hero-orb-1 {
+  top: 15%;
+  left: 20%;
+  background: rgba(42,138,122,0.12);
+  animation-delay: 0s;
+}
+
+.hero-orb-2 {
+  bottom: 20%;
+  right: 15%;
+  background: rgba(42,138,122,0.08);
+  animation-delay: -4s;
+}
+
+.hero-orb-3 {
+  top: 50%;
+  left: 60%;
+  background: rgba(58,170,154,0.06);
+  animation-delay: -8s;
+}
+
+@keyframes heroOrbFloat {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(15px, -20px); }
+  50% { transform: translate(-10px, 15px); }
+  75% { transform: translate(20px, 10px); }
+}
+
+/* Mobile hamburger animated lines */
+.mobile-hamburger-line {
+  position: absolute;
+  left: 8px;
+  width: 24px;
+  height: 2px;
+  background-color: currentColor;
+  border-radius: 1px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Smooth scroll */

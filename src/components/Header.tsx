@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Logo } from './Logo';
 import { ThemeToggle } from './ThemeToggle';
@@ -17,6 +17,21 @@ const navLinks = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileMenuOpen]);
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
@@ -71,35 +86,38 @@ export function Header() {
           <div className="md:hidden flex items-center gap-3">
             <ThemeToggle />
             <button
-              className="p-2"
+              className="relative w-10 h-10 flex items-center justify-center"
               style={{ color: 'var(--text-primary)' }}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
+              aria-expanded={mobileMenuOpen}
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {mobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
+              <span className={`mobile-hamburger-line top-[13px] ${mobileMenuOpen ? 'rotate-45 !top-[18px]' : ''}`}></span>
+              <span className={`mobile-hamburger-line top-[18px] ${mobileMenuOpen ? 'opacity-0 scale-x-0' : ''}`}></span>
+              <span className={`mobile-hamburger-line top-[23px] ${mobileMenuOpen ? '-rotate-45 !top-[18px]' : ''}`}></span>
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <nav className="md:hidden py-6" style={{ borderTop: '1px solid var(--border-primary)' }}>
-            <div className="flex flex-col gap-4">
-              {navLinks.map((link) => (
+        {/* Mobile Menu with slide animation */}
+        <div
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+            mobileMenuOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <nav className="py-6" style={{ borderTop: '1px solid var(--border-primary)' }}>
+            <div className="flex flex-col gap-1">
+              {navLinks.map((link, i) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-base font-body transition-colors py-2"
+                  className="text-base font-body py-3 px-4 rounded-lg transition-all"
                   style={{
                     color: isActive(link.href) ? 'var(--teal)' : 'var(--text-secondary)',
-                    borderLeft: isActive(link.href) ? '2px solid var(--teal)' : '2px solid transparent',
-                    paddingLeft: '1rem',
+                    backgroundColor: isActive(link.href) ? 'rgba(42,138,122,0.1)' : 'transparent',
+                    transitionDelay: mobileMenuOpen ? `${i * 50}ms` : '0ms',
+                    transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-10px)',
+                    opacity: mobileMenuOpen ? 1 : 0,
                   }}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -109,14 +127,20 @@ export function Header() {
               <Link
                 href="/newsletter"
                 className="mt-4 px-5 py-3 text-center text-sm font-body rounded-lg transition-all hover:opacity-90"
-                style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef' }}
+                style={{
+                  backgroundColor: 'var(--accent-primary)',
+                  color: '#f5f3ef',
+                  transitionDelay: mobileMenuOpen ? `${navLinks.length * 50}ms` : '0ms',
+                  transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-10px)',
+                  opacity: mobileMenuOpen ? 1 : 0,
+                }}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Subscribe
               </Link>
             </div>
           </nav>
-        )}
+        </div>
       </div>
     </header>
   );

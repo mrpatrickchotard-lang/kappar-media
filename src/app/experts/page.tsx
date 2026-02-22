@@ -1,6 +1,7 @@
 import { getExperts } from '@/lib/expert-db';
 import Link from 'next/link';
 import { TagList } from '@/components/TagCloud';
+import { ExpertAvatar } from '@/components/ExpertAvatar';
 import type { Expert } from '@/lib/experts';
 
 export default function ExpertsPage() {
@@ -58,7 +59,7 @@ function ExpertCard({ expert, featured = false }: ExpertCardProps) {
   return (
     <Link href={`/experts/${expert.id}`} className="group block">
       <article
-        className={`rounded-2xl p-6 transition-all h-full flex flex-col card-hover ${
+        className={`rounded-2xl p-6 transition-all h-full flex flex-col card-hover-light ${
           featured ? 'ring-1 ring-[var(--teal)]/20' : ''
         }`}
         style={{
@@ -68,12 +69,7 @@ function ExpertCard({ expert, featured = false }: ExpertCardProps) {
       >
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-4">
-            <div
-              className="w-16 h-16 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: 'var(--accent-primary)' }}
-            >
-              <span className="text-2xl font-display" style={{ color: '#f5f3ef' }}>{expert.name.charAt(0)}</span>
-            </div>
+            <ExpertAvatar name={expert.name} id={expert.id} size={64} />
             <div>
               <h3 className="font-display text-xl font-light group-hover:text-[var(--teal)] transition-colors" style={{ color: 'var(--text-primary)' }}>
                 {expert.name}
