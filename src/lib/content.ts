@@ -12,7 +12,13 @@ export interface Article {
   tags: string[];
   featured?: boolean;
   coverImage?: string;
+  thumbnail?: string;
+  contentType?: 'text' | 'video' | 'mixed';
+  videoUrl?: string;
+  illustrations?: string[];
   readingTime?: number;
+  status?: string;
+  reviewFeedback?: string;
 }
 
 // Sample articles data

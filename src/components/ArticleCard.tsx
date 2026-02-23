@@ -8,15 +8,39 @@ interface ArticleCardProps {
   showTags?: boolean;
 }
 
+function VideoPlayOverlay() {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+      <div className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-sm" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+          <polygon points="5,3 19,12 5,21" />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+function VideoBadge() {
+  return (
+    <span className="px-2 py-0.5 text-[9px] font-body tracking-wider uppercase rounded-full backdrop-blur-sm" style={{ backgroundColor: 'rgba(239,68,68,0.85)', color: '#fff' }}>
+      Video
+    </span>
+  );
+}
+
 export function ArticleCard({ article, featured = false, showTags = true }: ArticleCardProps) {
+  // Thumbnail priority: thumbnail > coverImage > generated visual
+  const displayImage = article.thumbnail || article.coverImage;
+  const isVideo = article.contentType === 'video' || article.contentType === 'mixed';
+
   if (featured) {
     return (
       <Link href={`/content/${article.slug}`} className="group block">
         <article className="relative overflow-hidden rounded-2xl card-hover" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}>
           <div className="aspect-[16/9] relative overflow-hidden">
-            {article.coverImage ? (
+            {displayImage ? (
               <img
-                src={article.coverImage}
+                src={displayImage}
                 alt={article.title}
                 className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
               />
@@ -26,10 +50,13 @@ export function ArticleCard({ article, featured = false, showTags = true }: Arti
               </div>
             )}
 
+            {isVideo && <VideoPlayOverlay />}
+
             <div className="absolute top-4 left-4 flex gap-2">
               <span className="px-3 py-1 bg-[var(--accent-primary)]/90 text-[var(--accent-gold)] text-xs font-body tracking-wider uppercase rounded-full backdrop-blur-sm">
                 {article.category}
               </span>
+              {isVideo && <VideoBadge />}
               {article.featured && (
                 <span className="px-3 py-1 bg-[var(--accent-emerald)]/90 text-white text-xs font-body tracking-wider uppercase rounded-full backdrop-blur-sm">
                   Featured
@@ -78,9 +105,9 @@ export function ArticleCard({ article, featured = false, showTags = true }: Arti
     <Link href={`/content/${article.slug}`} className="group block">
       <article className="flex flex-col h-full">
         <div className="aspect-[16/10] rounded-xl mb-5 relative overflow-hidden card-hover-light" style={{ border: '1px solid var(--border-primary)' }}>
-          {article.coverImage ? (
+          {displayImage ? (
             <img
-              src={article.coverImage}
+              src={displayImage}
               alt={article.title}
               className="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
             />
@@ -90,10 +117,13 @@ export function ArticleCard({ article, featured = false, showTags = true }: Arti
             </div>
           )}
 
-          <div className="absolute top-3 left-3">
+          {isVideo && <VideoPlayOverlay />}
+
+          <div className="absolute top-3 left-3 flex gap-1.5">
             <span className="px-2.5 py-1 text-[10px] font-body tracking-wider uppercase rounded-full backdrop-blur-sm" style={{ backgroundColor: 'rgba(0,0,0,0.5)', color: '#f5f3ef' }}>
               {article.category}
             </span>
+            {isVideo && <VideoBadge />}
           </div>
         </div>
 

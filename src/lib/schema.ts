@@ -112,9 +112,16 @@ export const articles = pgTable('articles', {
   author: varchar('author', { length: 255 }).notNull(),
   authorId: integer('author_id'),  // FK to users table
   featuredImage: varchar('featured_image', { length: 500 }),
+  thumbnail: varchar('thumbnail', { length: 500 }),  // Custom thumbnail (overrides featuredImage on cards & OG)
+  contentType: varchar('content_type', { length: 20 }).notNull().default('text'),  // text | video | mixed
+  videoUrl: varchar('video_url', { length: 500 }),  // YouTube/Vimeo embed URL
+  illustrations: jsonb('illustrations').$type<string[]>().notNull().default([]),  // Gallery image URLs
   readingTime: integer('reading_time').default(5),
   featured: boolean('featured').notNull().default(false),
-  status: varchar('status', { length: 50 }).notNull().default('draft'),  // draft | published | archived
+  status: varchar('status', { length: 50 }).notNull().default('draft'),  // draft | pending_review | published | archived
+  reviewFeedback: text('review_feedback'),  // Admin rejection notes
+  reviewedAt: timestamp('reviewed_at'),  // When admin reviewed
+  reviewedBy: integer('reviewed_by'),  // FK to users.id
   publishedAt: timestamp('published_at'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),

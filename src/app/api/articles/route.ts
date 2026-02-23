@@ -41,10 +41,25 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, excerpt, content, category, tags, featuredImage, readingTime, status } = body;
+    const {
+      title, excerpt, content, category, tags, featuredImage,
+      readingTime, status, thumbnail, contentType, videoUrl, illustrations,
+    } = body;
 
     if (!title || !excerpt || !content || !category) {
       return NextResponse.json({ error: 'Missing required fields: title, excerpt, content, category' }, { status: 400 });
+    }
+
+    // Validate contentType
+    const validContentTypes = ['text', 'video', 'mixed'];
+    const ct = contentType && validContentTypes.includes(contentType) ? contentType : 'text';
+
+    // Validate videoUrl if provided
+    if (videoUrl && typeof videoUrl === 'string') {
+      const videoPattern = /(?:youtube\.com|youtu\.be|vimeo\.com|player\.vimeo\.com)/;
+      if (!videoPattern.test(videoUrl)) {
+        return NextResponse.json({ error: 'Invalid video URL. Only YouTube and Vimeo are supported.' }, { status: 400 });
+      }
     }
 
     // Generate slug
@@ -53,6 +68,16 @@ export async function POST(request: Request) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '')
       .slice(0, 200);
+
+    // Writers submit for review, admins can publish directly
+    let articleStatus = 'draft';
+    if (status === 'pending_review' && session.user.role === 'writer') {
+      articleStatus = 'pending_review';
+    } else if (status === 'published' && session.user.role === 'admin') {
+      articleStatus = 'published';
+    } else if (status === 'draft') {
+      articleStatus = 'draft';
+    }
 
     const db = getDb();
     const result = await db.insert(articles).values({
@@ -65,9 +90,13 @@ export async function POST(request: Request) {
       author: session.user.name || session.user.email || 'Unknown',
       authorId: parseInt(session.user.id),
       featuredImage: featuredImage || null,
+      thumbnail: thumbnail || null,
+      contentType: ct,
+      videoUrl: videoUrl || null,
+      illustrations: illustrations || [],
       readingTime: readingTime || Math.ceil(content.replace(/<[^>]+>/g, '').split(' ').length / 200),
-      status: status === 'published' && session.user.role === 'admin' ? 'published' : 'draft',
-      publishedAt: status === 'published' && session.user.role === 'admin' ? new Date() : null,
+      status: articleStatus,
+      publishedAt: articleStatus === 'published' ? new Date() : null,
     }).returning();
 
     return NextResponse.json({ success: true, article: result[0] });
@@ -86,7 +115,10 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { id, title, excerpt, content, category, tags, featuredImage, readingTime, status, featured } = body;
+    const {
+      id, title, excerpt, content, category, tags, featuredImage,
+      readingTime, status, featured, thumbnail, contentType, videoUrl, illustrations,
+    } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Article ID required' }, { status: 400 });
@@ -100,6 +132,13 @@ export async function PUT(request: Request) {
       if (!existing[0] || existing[0].authorId !== parseInt(session.user.id)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
+      // Writers cannot edit articles that are pending_review or published
+      if (existing[0].status === 'pending_review') {
+        return NextResponse.json({ error: 'Cannot edit while pending review' }, { status: 403 });
+      }
+      if (existing[0].status === 'published') {
+        return NextResponse.json({ error: 'Cannot edit published articles. Contact an admin.' }, { status: 403 });
+      }
     }
 
     const updateData: Record<string, unknown> = { updatedAt: new Date() };
@@ -108,21 +147,37 @@ export async function PUT(request: Request) {
     if (content) updateData.content = content;
     if (category) updateData.category = category.slice(0, 100);
     if (tags) updateData.tags = tags;
-    if (featuredImage !== undefined) updateData.featuredImage = featuredImage;
+    if (featuredImage !== undefined) updateData.featuredImage = featuredImage || null;
+    if (thumbnail !== undefined) updateData.thumbnail = thumbnail || null;
+    if (contentType) {
+      const validTypes = ['text', 'video', 'mixed'];
+      if (validTypes.includes(contentType)) updateData.contentType = contentType;
+    }
+    if (videoUrl !== undefined) updateData.videoUrl = videoUrl || null;
+    if (illustrations !== undefined) updateData.illustrations = illustrations;
     if (readingTime) updateData.readingTime = readingTime;
 
-    // Only admin can publish or feature
+    // Only admin can publish, feature, or archive
     if (session.user.role === 'admin') {
       if (status) {
         updateData.status = status;
-        if (status === 'published') updateData.publishedAt = new Date();
+        if (status === 'published') {
+          updateData.publishedAt = new Date();
+          updateData.reviewedAt = new Date();
+          updateData.reviewedBy = parseInt(session.user.id);
+        }
       }
       if (featured !== undefined) updateData.featured = featured;
     }
 
-    // Writers can save as draft
-    if (session.user.role === 'writer' && status === 'draft') {
-      updateData.status = 'draft';
+    // Writers can save as draft or submit for review
+    if (session.user.role === 'writer') {
+      if (status === 'draft') {
+        updateData.status = 'draft';
+      } else if (status === 'pending_review') {
+        updateData.status = 'pending_review';
+        updateData.reviewFeedback = null; // Clear previous feedback
+      }
     }
 
     const result = await db.update(articles).set(updateData).where(eq(articles.id, id)).returning();

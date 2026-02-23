@@ -2,27 +2,48 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { getAllArticles } from '@/lib/content';
 
 interface Article {
+  id: number;
   slug: string;
   title: string;
   category: string;
   author: string;
-  date: string;
-  featured?: boolean;
+  status: string;
+  contentType: string;
+  featured: boolean;
   tags: string[];
+  createdAt: string;
+  updatedAt: string;
 }
+
+const statusColors: Record<string, { bg: string; text: string; label: string }> = {
+  draft: { bg: 'rgba(234,179,8,0.12)', text: '#ca8a04', label: 'Draft' },
+  pending_review: { bg: 'rgba(59,130,246,0.12)', text: '#2563eb', label: 'Pending Review' },
+  published: { bg: 'rgba(34,197,94,0.12)', text: '#16a34a', label: 'Published' },
+  archived: { bg: 'rgba(107,114,128,0.12)', text: '#6b7280', label: 'Archived' },
+};
+
+const filters = ['all', 'published', 'pending_review', 'draft', 'archived'];
+const filterLabels: Record<string, string> = {
+  all: 'All',
+  published: 'Published',
+  pending_review: 'Pending Review',
+  draft: 'Drafts',
+  archived: 'Archived',
+};
 
 export default function AdminContentPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all');
 
   useEffect(() => {
-    getAllArticles()
-      .then((data) => {
-        setArticles(data);
+    fetch('/api/articles')
+      .then(res => res.json())
+      .then(data => {
+        setArticles(data.articles || []);
         setLoading(false);
       })
       .catch(() => {
@@ -30,6 +51,12 @@ export default function AdminContentPage() {
         setLoading(false);
       });
   }, []);
+
+  const filteredArticles = activeFilter === 'all'
+    ? articles
+    : articles.filter(a => a.status === activeFilter);
+
+  const pendingCount = articles.filter(a => a.status === 'pending_review').length;
 
   if (loading) {
     return (
@@ -59,26 +86,43 @@ export default function AdminContentPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-display text-3xl font-light tracking-wide text-primary">Content Management</h1>
-          <p className="text-secondary mt-2">Manage your published articles</p>
+          <p className="text-secondary text-sm mt-1">
+            {articles.length} total articles
+            {pendingCount > 0 && (
+              <span className="ml-2 px-2 py-0.5 rounded-full text-xs" style={{ backgroundColor: 'rgba(59,130,246,0.12)', color: '#2563eb' }}>
+                {pendingCount} pending review
+              </span>
+            )}
+          </p>
         </div>
         <Link
           href="/dashboard/writer/articles/new"
-          style={{
-            padding: '12px 24px',
-            backgroundColor: 'var(--teal)',
-            color: 'white',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: 500,
-            textDecoration: 'none',
-            display: 'inline-block',
-            transition: 'opacity 0.3s'
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+          className="px-5 py-2.5 rounded-xl text-sm font-body transition-opacity hover:opacity-90"
+          style={{ backgroundColor: 'var(--teal)', color: '#fff' }}
         >
           New Article
         </Link>
+      </div>
+
+      {/* Status Filters */}
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {filters.map(filter => {
+          const count = filter === 'all' ? articles.length : articles.filter(a => a.status === filter).length;
+          return (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className="px-4 py-2 rounded-lg text-xs font-body transition-all"
+              style={{
+                backgroundColor: activeFilter === filter ? 'var(--teal)' : 'var(--bg-card)',
+                color: activeFilter === filter ? '#fff' : 'var(--text-secondary)',
+                border: `1px solid ${activeFilter === filter ? 'var(--teal)' : 'var(--border-primary)'}`,
+              }}
+            >
+              {filterLabels[filter]} ({count})
+            </button>
+          );
+        })}
       </div>
 
       <div style={{
@@ -87,221 +131,85 @@ export default function AdminContentPage() {
         borderRadius: '16px',
         overflow: 'hidden'
       }}>
-        <div style={{
-          backgroundColor: 'var(--bg-primary)',
-          borderBottom: '1px solid var(--border-primary)',
-          padding: '20px 24px'
-        }}>
-          <p style={{
-            color: 'var(--text-secondary)',
-            fontSize: '14px',
-            fontWeight: 500,
-            margin: 0
-          }}>
-            Total Articles: {articles.length}
-          </p>
-        </div>
-
-        {articles.length === 0 ? (
-          <div style={{
-            padding: '40px',
-            textAlign: 'center',
-            color: 'var(--text-tertiary)'
-          }}>
-            <p>No articles yet. Create your first article to get started.</p>
+        {filteredArticles.length === 0 ? (
+          <div className="p-10 text-center" style={{ color: 'var(--text-tertiary)' }}>
+            <p className="text-sm">No articles match this filter.</p>
           </div>
         ) : (
-          <table style={{ width: '100%' }}>
+          <table className="w-full">
             <thead>
-              <tr style={{
-                backgroundColor: 'var(--bg-primary)',
-                borderBottom: '1px solid var(--border-primary)'
-              }}>
-                <th style={{
-                  textAlign: 'left',
-                  padding: '16px 24px',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  color: 'var(--text-secondary)',
-                  fontFamily: 'var(--font-body)'
-                }}>Title</th>
-                <th style={{
-                  textAlign: 'left',
-                  padding: '16px 24px',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  color: 'var(--text-secondary)',
-                  fontFamily: 'var(--font-body)'
-                }}>Category</th>
-                <th style={{
-                  textAlign: 'left',
-                  padding: '16px 24px',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  color: 'var(--text-secondary)',
-                  fontFamily: 'var(--font-body)'
-                }}>Author</th>
-                <th style={{
-                  textAlign: 'left',
-                  padding: '16px 24px',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  color: 'var(--text-secondary)',
-                  fontFamily: 'var(--font-body)'
-                }}>Date</th>
-                <th style={{
-                  textAlign: 'left',
-                  padding: '16px 24px',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  color: 'var(--text-secondary)',
-                  fontFamily: 'var(--font-body)'
-                }}>Status</th>
-                <th style={{
-                  textAlign: 'left',
-                  padding: '16px 24px',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  color: 'var(--text-secondary)',
-                  fontFamily: 'var(--font-body)'
-                }}>Tags</th>
-                <th style={{
-                  textAlign: 'right',
-                  padding: '16px 24px',
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  color: 'var(--text-secondary)',
-                  fontFamily: 'var(--font-body)'
-                }}>Actions</th>
+              <tr style={{ backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--border-primary)' }}>
+                {['Title', 'Type', 'Category', 'Author', 'Status', 'Date', 'Actions'].map(h => (
+                  <th key={h} className="text-left px-5 py-3 text-[10px] tracking-widest uppercase font-body" style={{ color: 'var(--text-tertiary)' }}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody style={{ borderTop: '1px solid var(--border-primary)' }}>
-              {articles.map((article, index) => (
-                <tr
-                  key={article.slug}
-                  style={{
-                    borderBottom: index < articles.length - 1 ? '1px solid var(--border-primary)' : 'none',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-primary)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                >
-                  <td style={{
-                    padding: '16px 24px',
-                    color: 'var(--text-primary)',
-                    fontSize: '14px',
-                    fontFamily: 'var(--font-body)',
-                    maxWidth: '250px',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    {article.title}
-                  </td>
-                  <td style={{
-                    padding: '16px 24px',
-                    color: 'var(--text-secondary)',
-                    fontSize: '14px',
-                    fontFamily: 'var(--font-body)'
-                  }}>
-                    {article.category}
-                  </td>
-                  <td style={{
-                    padding: '16px 24px',
-                    color: 'var(--text-secondary)',
-                    fontSize: '14px',
-                    fontFamily: 'var(--font-body)'
-                  }}>
-                    {article.author}
-                  </td>
-                  <td style={{
-                    padding: '16px 24px',
-                    color: 'var(--text-secondary)',
-                    fontSize: '14px',
-                    fontFamily: 'var(--font-body)'
-                  }}>
-                    {new Date(article.date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </td>
-                  <td style={{
-                    padding: '16px 24px'
-                  }}>
-                    {article.featured && (
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '4px 12px',
-                        backgroundColor: 'var(--teal)',
-                        color: 'white',
-                        fontSize: '11px',
-                        borderRadius: '9999px',
-                        fontWeight: 500
-                      }}>
-                        Featured
-                      </span>
-                    )}
-                  </td>
-                  <td style={{
-                    padding: '16px 24px'
-                  }}>
-                    <div style={{
-                      display: 'flex',
-                      gap: '4px',
-                      flexWrap: 'wrap',
-                      maxWidth: '150px'
-                    }}>
-                      {article.tags.slice(0, 2).map((tag: string) => (
-                        <span
-                          key={tag}
-                          style={{
-                            display: 'inline-block',
-                            padding: '3px 8px',
-                            backgroundColor: 'var(--bg-primary)',
-                            border: '1px solid var(--border-primary)',
-                            color: 'var(--text-secondary)',
-                            fontSize: '11px',
-                            borderRadius: '4px',
-                            fontFamily: 'var(--font-body)'
-                          }}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                      {article.tags.length > 2 && (
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '3px 8px',
-                          color: 'var(--text-tertiary)',
-                          fontSize: '11px',
-                          fontFamily: 'var(--font-body)'
-                        }}>
-                          +{article.tags.length - 2}
+            <tbody>
+              {filteredArticles.map((article, index) => {
+                const sc = statusColors[article.status] || statusColors.draft;
+                return (
+                  <tr
+                    key={article.id}
+                    style={{ borderBottom: index < filteredArticles.length - 1 ? '1px solid var(--border-primary)' : 'none' }}
+                  >
+                    <td className="px-5 py-4" style={{ maxWidth: '250px' }}>
+                      <p className="text-sm font-body font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                        {article.title}
+                      </p>
+                      {article.featured && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded mt-0.5 inline-block" style={{ backgroundColor: 'rgba(42,138,122,0.12)', color: 'var(--teal)' }}>
+                          Featured
                         </span>
                       )}
-                    </div>
-                  </td>
-                  <td style={{
-                    padding: '16px 24px',
-                    textAlign: 'right'
-                  }}>
-                    <Link
-                      href={`/articles/${article.slug}`}
-                      style={{
-                        color: 'var(--teal)',
-                        fontSize: '13px',
-                        textDecoration: 'none',
-                        transition: 'text-decoration 0.2s'
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
-                      onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
-                    >
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="text-xs font-body capitalize" style={{ color: 'var(--text-secondary)' }}>
+                        {article.contentType || 'text'}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="text-xs font-body" style={{ color: 'var(--text-secondary)' }}>{article.category}</span>
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="text-xs font-body" style={{ color: 'var(--text-secondary)' }}>{article.author}</span>
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="text-xs px-2 py-0.5 rounded-full whitespace-nowrap" style={{ backgroundColor: sc.bg, color: sc.text }}>
+                        {sc.label}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="text-xs font-body" style={{ color: 'var(--text-tertiary)' }}>
+                        {new Date(article.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex gap-2">
+                        <a
+                          href={`/content/${article.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-body hover:opacity-80"
+                          style={{ color: 'var(--teal)' }}
+                        >
+                          View
+                        </a>
+                        {article.status === 'pending_review' && (
+                          <Link
+                            href="/admin/review"
+                            className="text-xs font-body hover:opacity-80"
+                            style={{ color: '#2563eb' }}
+                          >
+                            Review
+                          </Link>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

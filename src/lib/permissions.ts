@@ -43,6 +43,14 @@ export function canViewDatabase(role: UserRole): boolean {
   return role === 'admin';
 }
 
+export function canReviewArticles(role: UserRole): boolean {
+  return role === 'admin';
+}
+
+export function canSubmitForReview(role: UserRole): boolean {
+  return role === 'writer';
+}
+
 export function getDashboardPath(role: UserRole): string {
   switch (role) {
     case 'admin': return '/admin';

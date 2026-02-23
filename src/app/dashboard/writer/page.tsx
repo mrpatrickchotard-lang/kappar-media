@@ -10,14 +10,17 @@ interface Article {
   category: string;
   status: string;
   featured: boolean;
+  contentType: string;
+  reviewFeedback: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
-const statusColors: Record<string, { bg: string; text: string }> = {
-  draft: { bg: 'rgba(234,179,8,0.12)', text: '#ca8a04' },
-  published: { bg: 'rgba(34,197,94,0.12)', text: '#16a34a' },
-  archived: { bg: 'rgba(107,114,128,0.12)', text: '#6b7280' },
+const statusColors: Record<string, { bg: string; text: string; label: string }> = {
+  draft: { bg: 'rgba(234,179,8,0.12)', text: '#ca8a04', label: 'Draft' },
+  pending_review: { bg: 'rgba(59,130,246,0.12)', text: '#2563eb', label: 'Pending Review' },
+  published: { bg: 'rgba(34,197,94,0.12)', text: '#16a34a', label: 'Published' },
+  archived: { bg: 'rgba(107,114,128,0.12)', text: '#6b7280', label: 'Archived' },
 };
 
 export default function WriterDashboard() {
@@ -41,6 +44,7 @@ export default function WriterDashboard() {
   const counts = {
     total: articles.length,
     drafts: articles.filter(a => a.status === 'draft').length,
+    pending: articles.filter(a => a.status === 'pending_review').length,
     published: articles.filter(a => a.status === 'published').length,
   };
 
@@ -66,10 +70,11 @@ export default function WriterDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-10">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         {[
           { label: 'Total', value: counts.total },
           { label: 'Drafts', value: counts.drafts },
+          { label: 'Pending Review', value: counts.pending },
           { label: 'Published', value: counts.published },
         ].map(stat => (
           <div
@@ -113,7 +118,7 @@ export default function WriterDashboard() {
           <table className="w-full">
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-primary)' }}>
-                {['Title', 'Category', 'Status', 'Updated', 'Actions'].map(h => (
+                {['Title', 'Type', 'Category', 'Status', 'Updated', 'Actions'].map(h => (
                   <th key={h} className="text-left px-5 py-3 text-[10px] tracking-widest uppercase font-body" style={{ color: 'var(--text-tertiary)' }}>
                     {h}
                   </th>
@@ -129,13 +134,24 @@ export default function WriterDashboard() {
                       <p className="font-body text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                         {article.title}
                       </p>
+                      {/* Show review feedback if article was rejected */}
+                      {article.status === 'draft' && article.reviewFeedback && (
+                        <div className="mt-1.5 p-2 rounded-lg text-xs" style={{ backgroundColor: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.2)', color: '#ca8a04' }}>
+                          <strong>Admin feedback:</strong> {article.reviewFeedback}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="text-xs font-body capitalize" style={{ color: 'var(--text-secondary)' }}>
+                        {article.contentType || 'text'}
+                      </span>
                     </td>
                     <td className="px-5 py-4">
                       <span className="text-xs font-body" style={{ color: 'var(--teal)' }}>{article.category}</span>
                     </td>
                     <td className="px-5 py-4">
                       <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: sc.bg, color: sc.text }}>
-                        {article.status}
+                        {sc.label}
                       </span>
                     </td>
                     <td className="px-5 py-4">
@@ -144,13 +160,19 @@ export default function WriterDashboard() {
                       </span>
                     </td>
                     <td className="px-5 py-4">
-                      <Link
-                        href={`/dashboard/writer/articles/${article.slug}`}
-                        className="text-xs font-body hover:opacity-80"
-                        style={{ color: 'var(--teal)' }}
-                      >
-                        Edit
-                      </Link>
+                      {article.status === 'draft' ? (
+                        <Link
+                          href={`/dashboard/writer/articles/${article.slug}`}
+                          className="text-xs font-body hover:opacity-80"
+                          style={{ color: 'var(--teal)' }}
+                        >
+                          Edit
+                        </Link>
+                      ) : (
+                        <span className="text-xs font-body" style={{ color: 'var(--text-tertiary)' }}>
+                          {article.status === 'pending_review' ? 'Awaiting review' : 'View'}
+                        </span>
+                      )}
                     </td>
                   </tr>
                 );

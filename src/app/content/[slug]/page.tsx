@@ -12,6 +12,25 @@ interface ArticlePageProps {
   params: Promise<{ slug: string }>;
 }
 
+/**
+ * Parse a video URL and return embed URL for iframe rendering.
+ */
+function getVideoEmbedUrl(url: string): string | null {
+  // YouTube
+  const ytMatch = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  );
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+
+  // Vimeo
+  const vimeoMatch = url.match(
+    /(?:vimeo\.com\/(?:video\/)?|player\.vimeo\.com\/video\/)(\d+)/
+  );
+  if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+
+  return null;
+}
+
 export async function generateStaticParams() {
   const articles = await getAllArticles();
   return articles.map((article) => ({
@@ -23,6 +42,8 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
   if (!article) return { title: 'Article Not Found' };
+
+  const ogImage = article.thumbnail || article.coverImage;
 
   return {
     title: article.title,
@@ -37,13 +58,13 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       authors: [article.author],
       tags: article.tags,
       url: `https://kappar.tv/content/${article.slug}`,
-      ...(article.coverImage && { images: [{ url: article.coverImage }] }),
+      ...(ogImage && { images: [{ url: ogImage }] }),
     },
     twitter: {
       card: 'summary_large_image',
       title: article.title,
       description: article.excerpt,
-      ...(article.coverImage && { images: [article.coverImage] }),
+      ...(ogImage && { images: [ogImage] }),
     },
     alternates: {
       canonical: `https://kappar.tv/content/${article.slug}`,
@@ -60,6 +81,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   const relatedArticles = await getRelatedArticles(slug, 3);
+  const isVideo = article.contentType === 'video' || article.contentType === 'mixed';
+  const videoEmbedUrl = article.videoUrl ? getVideoEmbedUrl(article.videoUrl) : null;
+  const illustrations = article.illustrations || [];
 
   return (
     <article className="min-h-screen pt-32 pb-24">
@@ -93,6 +117,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <span className="px-3 py-1 accent-primary text-[var(--accent-gold)] text-xs font-body tracking-wider uppercase rounded-full">
             {article.category}
           </span>
+          {isVideo && (
+            <span className="px-3 py-1 text-xs font-body tracking-wider uppercase rounded-full" style={{ backgroundColor: 'rgba(239,68,68,0.85)', color: '#fff' }}>
+              Video
+            </span>
+          )}
           {article.featured && (
             <span className="px-3 py-1 bg-[var(--accent-emerald)] text-white text-xs font-body tracking-wider uppercase rounded-full">
               Featured
@@ -129,6 +158,23 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           )}
         </div>
 
+        {/* Video Player */}
+        {videoEmbedUrl && (
+          <div className="mb-12">
+            <div className="relative w-full rounded-2xl overflow-hidden" style={{ paddingBottom: '56.25%', backgroundColor: '#000' }}>
+              <iframe
+                src={videoEmbedUrl}
+                className="absolute inset-0 w-full h-full"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title={article.title}
+                style={{ borderRadius: '16px' }}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Tags */}
         {article.tags.length > 0 && (
           <div className="mb-12">
@@ -141,6 +187,33 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           className="article-content max-w-3xl"
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
         />
+
+        {/* Illustrations Gallery */}
+        {illustrations.length > 0 && (
+          <div className="mt-16 pt-8 border-t border-primary">
+            <h3 className="font-display text-xl font-light tracking-wide text-primary mb-6">
+              Illustrations
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {illustrations.map((url, idx) => (
+                <a
+                  key={idx}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-xl overflow-hidden group"
+                  style={{ border: '1px solid var(--border-primary)' }}
+                >
+                  <img
+                    src={url}
+                    alt={`Illustration ${idx + 1}`}
+                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Share */}
         <div className="mt-16 pt-8 border-t border-primary">
