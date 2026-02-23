@@ -3,11 +3,12 @@ import { getDb } from '@/lib/db';
 import { events } from '@/lib/schema';
 import { getSessionWithRole } from '@/lib/permissions';
 import { eq, desc } from 'drizzle-orm';
+import { getAllEvents } from '@/lib/events';
 
 const VALID_STATUSES = ['draft', 'pending_review', 'published', 'archived'];
 const VALID_EVENT_STATUSES = ['upcoming', 'ongoing', 'past', 'sold-out'];
 
-// GET all events (admin sees all statuses)
+// GET all events (admin sees all statuses, falls back to library data if DB table missing)
 export async function GET() {
   try {
     const session = await getSessionWithRole();
@@ -15,9 +16,44 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const db = getDb();
-    const result = await db.select().from(events).orderBy(desc(events.date));
-    return NextResponse.json({ events: result });
+    try {
+      const db = getDb();
+      const result = await db.select().from(events).orderBy(desc(events.date));
+      return NextResponse.json({ events: result });
+    } catch {
+      // DB table may not exist yet — fall back to library (published events only)
+      const fallback = await getAllEvents();
+      const mapped = fallback.map(e => ({
+        id: Number(e.id.replace('evt-', '')) || 0,
+        slug: e.slug,
+        title: e.title,
+        description: e.description,
+        content: e.content || '',
+        date: e.date,
+        startTime: e.startTime,
+        endTime: e.endTime,
+        location: e.location,
+        address: e.address || null,
+        type: e.type,
+        category: e.category,
+        tags: e.tags,
+        featured: e.featured || false,
+        speakers: e.speakers,
+        capacity: e.capacity || null,
+        registeredCount: e.registeredCount || 0,
+        price: e.price,
+        currency: e.currency,
+        eventStatus: e.status,  // temporal status
+        status: 'published',    // review status
+        reviewFeedback: null,
+        reviewedAt: null,
+        reviewedBy: null,
+        featuredImage: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+      return NextResponse.json({ events: mapped });
+    }
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to fetch events';
     return NextResponse.json({ error: message }, { status: 500 });

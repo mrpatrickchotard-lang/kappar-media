@@ -3,8 +3,9 @@ import { getDb } from '@/lib/db';
 import { partners } from '@/lib/schema';
 import { getSessionWithRole } from '@/lib/permissions';
 import { eq, desc } from 'drizzle-orm';
+import { getAllPartners } from '@/lib/partners';
 
-// GET partners (admin sees all, partner sees own)
+// GET partners (admin sees all, partner sees own, falls back to library data if DB missing)
 export async function GET() {
   try {
     const session = await getSessionWithRole();
@@ -12,19 +13,55 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const db = getDb();
-    let result;
+    try {
+      const db = getDb();
+      let result;
 
-    if (session.user.role === 'admin') {
-      result = await db.select().from(partners).orderBy(desc(partners.createdAt));
-    } else if (session.user.role === 'partner' && session.user.partnerId) {
-      result = await db.select().from(partners)
-        .where(eq(partners.id, session.user.partnerId));
-    } else {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      if (session.user.role === 'admin') {
+        result = await db.select().from(partners).orderBy(desc(partners.createdAt));
+      } else if (session.user.role === 'partner' && session.user.partnerId) {
+        result = await db.select().from(partners)
+          .where(eq(partners.id, session.user.partnerId));
+      } else {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
+      return NextResponse.json({ partners: result });
+    } catch {
+      // DB table may not exist yet — fall back to library (published partners only)
+      if (session.user.role === 'admin') {
+        const fallback = await getAllPartners();
+        const mapped = fallback.map(p => ({
+          id: Number(p.id.replace('p', '')) || 0,
+          slug: p.slug,
+          name: p.name,
+          description: p.description,
+          longDescription: p.longDescription,
+          industry: p.industry,
+          services: p.services,
+          website: p.website,
+          founded: p.founded,
+          headquarters: p.headquarters,
+          employees: p.employees,
+          partnershipType: p.partnershipType,
+          partnerSince: p.partnerSince,
+          featured: p.featured,
+          collaborationAreas: p.collaborationAreas,
+          keyHighlights: p.keyHighlights,
+          socialLinks: p.socialLinks,
+          logoUrl: null,
+          status: 'published',
+          reviewFeedback: null,
+          reviewedAt: null,
+          reviewedBy: null,
+          managedBy: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }));
+        return NextResponse.json({ partners: mapped });
+      }
+      return NextResponse.json({ partners: [] });
     }
-
-    return NextResponse.json({ partners: result });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to fetch partners';
     return NextResponse.json({ error: message }, { status: 500 });

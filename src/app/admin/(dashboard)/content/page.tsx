@@ -97,6 +97,7 @@ export default function AdminContentPage() {
         </div>
         <Link
           href="/dashboard/writer/articles/new"
+          target="_blank"
           className="px-5 py-2.5 rounded-xl text-sm font-body transition-opacity hover:opacity-90"
           style={{ backgroundColor: 'var(--teal)', color: '#fff' }}
         >

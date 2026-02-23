@@ -11,6 +11,8 @@ interface DashboardStats {
   pendingBookings: number;
   totalArticles: number;
   featuredArticles: number;
+  totalEvents: number;
+  totalPartners: number;
 }
 
 export default function AdminDashboardPage() {
@@ -21,23 +23,29 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [articlesRes, eventsRes, partnersRes] = await Promise.all([
+        const [articlesRes, expertsRes, bookingsRes, eventsRes, partnersRes] = await Promise.all([
           fetch('/api/articles').then(r => r.ok ? r.json() : { articles: [] }),
-          fetch('/api/events').then(r => r.ok ? r.json() : { events: [] }),
+          fetch('/api/experts-manage').then(r => r.ok ? r.json() : { experts: [] }),
+          fetch('/api/admin/bookings').then(r => r.ok ? r.json() : { bookings: [] }),
+          fetch('/api/events-manage').then(r => r.ok ? r.json() : { events: [] }),
           fetch('/api/partners-manage').then(r => r.ok ? r.json() : { partners: [] }),
         ]);
 
         const articles = articlesRes.articles || [];
+        const expertsList = expertsRes.experts || [];
+        const bookingsList = bookingsRes.bookings || [];
         const events = eventsRes.events || [];
         const partners = partnersRes.partners || [];
 
         setStats({
-          totalExperts: events.length, // reuse events count for now
-          featuredExperts: events.filter((e: { featured?: boolean }) => e.featured).length,
-          totalBookings: partners.length,
-          pendingBookings: partners.filter((p: { status?: string }) => p.status === 'pending_review').length,
+          totalExperts: expertsList.length,
+          featuredExperts: expertsList.filter((e: { featured?: boolean }) => e.featured).length,
+          totalBookings: bookingsList.length,
+          pendingBookings: bookingsList.filter((b: { status?: string }) => b.status === 'pending').length,
           totalArticles: articles.length,
           featuredArticles: articles.filter((a: { featured?: boolean }) => a.featured).length,
+          totalEvents: events.length,
+          totalPartners: partners.length,
         });
         setLoading(false);
       } catch {
@@ -165,6 +173,7 @@ export default function AdminDashboardPage() {
           <div className="space-y-3">
             <Link
               href="/dashboard/writer/articles/new"
+              target="_blank"
               className="flex items-center gap-3 p-4 bg-primary rounded-xl hover:border-secondary border border-transparent transition-all"
             >
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(58,170,154,0.15)' }}>
