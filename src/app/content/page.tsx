@@ -4,8 +4,16 @@ import { getAllArticles, getCategories } from '@/lib/content';
 import { ArticleCard } from '@/components/ArticleCard';
 
 export const metadata: Metadata = {
-  title: 'Content | Kappar',
+  title: 'Content',
   description: 'Explore insights, analysis, and expert perspectives on finance, technology, real estate, and business in the MENA region.',
+  openGraph: {
+    title: 'Content | Kappar Media',
+    description: 'Expert insights and analysis on finance, technology, real estate, and business in the MENA region.',
+    url: 'https://kappar.tv/content',
+  },
+  alternates: {
+    canonical: 'https://kappar.tv/content',
+  },
 };
 
 interface ContentPageProps {

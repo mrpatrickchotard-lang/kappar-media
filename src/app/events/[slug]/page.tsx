@@ -6,6 +6,7 @@ import { EventRegistration } from '@/components/EventRegistration';
 import { EventCard } from '@/components/EventCard';
 import { EventCardVisual } from '@/components/EventCardVisual';
 import { sanitizeHtml } from '@/lib/sanitize';
+import { eventJsonLd, breadcrumbJsonLd } from '@/lib/jsonld';
 
 export async function generateStaticParams() {
   const events = getAllEvents();
@@ -23,8 +24,22 @@ export async function generateMetadata({
   const event = getEventBySlug(slug);
   if (!event) return { title: 'Event Not Found' };
   return {
-    title: `${event.title} | Kappar Events`,
+    title: event.title,
     description: event.description,
+    openGraph: {
+      title: event.title,
+      description: event.description,
+      type: 'website',
+      url: `https://kappar.tv/events/${event.slug}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: event.title,
+      description: event.description,
+    },
+    alternates: {
+      canonical: `https://kappar.tv/events/${event.slug}`,
+    },
   };
 }
 
@@ -71,6 +86,18 @@ export default async function EventDetailPage({
 
   return (
     <div className="min-h-screen pt-24 pb-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd(event)) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd([
+          { name: 'Home', url: 'https://kappar.tv' },
+          { name: 'Events', url: 'https://kappar.tv/events' },
+          { name: event.title, url: `https://kappar.tv/events/${event.slug}` },
+        ])) }}
+      />
       <div className="max-w-6xl mx-auto px-6">
         {/* Back link */}
         <Link

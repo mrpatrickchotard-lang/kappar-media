@@ -20,12 +20,20 @@ export async function generateMetadata({
   const partner = getPartnerBySlug(slug);
   if (!partner) return { title: 'Partner Not Found | Kappar Media' };
   return {
-    title: `${partner.name} | Partners | Kappar Media`,
+    title: `${partner.name} — Partner`,
     description: partner.description,
     openGraph: {
       title: `${partner.name} | Kappar Media`,
       description: partner.description,
       url: `https://kappar.tv/partners/${partner.slug}`,
+    },
+    twitter: {
+      card: 'summary',
+      title: `${partner.name} | Kappar Media`,
+      description: partner.description,
+    },
+    alternates: {
+      canonical: `https://kappar.tv/partners/${partner.slug}`,
     },
   };
 }

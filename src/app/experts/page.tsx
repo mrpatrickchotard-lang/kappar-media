@@ -1,8 +1,22 @@
+import type { Metadata } from 'next';
 import { getExperts } from '@/lib/expert-db';
 import Link from 'next/link';
 import { TagList } from '@/components/TagCloud';
 import { ExpertAvatar } from '@/components/ExpertAvatar';
 import type { Expert } from '@/lib/experts';
+
+export const metadata: Metadata = {
+  title: 'Meet the Experts',
+  description: 'Book one-on-one consultations with verified industry leaders in fintech, business strategy, technology, and more. Expert guidance from Dubai to the world.',
+  openGraph: {
+    title: 'Meet the Experts | Kappar Media',
+    description: 'Book consultations with verified industry leaders in fintech, strategy, and technology.',
+    url: 'https://kappar.tv/experts',
+  },
+  alternates: {
+    canonical: 'https://kappar.tv/experts',
+  },
+};
 
 export default function ExpertsPage() {
   const experts = getExperts();

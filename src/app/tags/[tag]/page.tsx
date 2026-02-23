@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getArticlesByTag, getAllTags } from '@/lib/content';
 import { ArticleCard } from '@/components/ArticleCard';
 import { TagCloud } from '@/components/TagCloud';
@@ -11,6 +12,19 @@ export async function generateStaticParams() {
   return tags.map((tag) => ({
     tag: encodeURIComponent(tag.toLowerCase()),
   }));
+}
+
+export async function generateMetadata({ params }: TagPageProps): Promise<Metadata> {
+  const { tag } = await params;
+  const decodedTag = decodeURIComponent(tag);
+  const displayTag = decodedTag.charAt(0).toUpperCase() + decodedTag.slice(1);
+  return {
+    title: `${displayTag} Articles`,
+    description: `Read the latest articles about ${displayTag} on Kappar Media. Expert insights, analysis, and perspectives.`,
+    alternates: {
+      canonical: `https://kappar.tv/tags/${tag}`,
+    },
+  };
 }
 
 export default async function TagPage({ params }: TagPageProps) {

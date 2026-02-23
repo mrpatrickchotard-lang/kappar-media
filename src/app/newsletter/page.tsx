@@ -1,4 +1,18 @@
+import type { Metadata } from 'next';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
+
+export const metadata: Metadata = {
+  title: 'The Briefing Newsletter',
+  description: 'Subscribe to The Briefing — weekly insights on business, technology, and the forces shaping global markets. No noise, no fluff.',
+  openGraph: {
+    title: 'The Briefing | Kappar Newsletter',
+    description: 'Weekly insights on business, technology, and the forces shaping global markets.',
+    url: 'https://kappar.tv/newsletter',
+  },
+  alternates: {
+    canonical: 'https://kappar.tv/newsletter',
+  },
+};
 
 export default function NewsletterPage() {
   return (

@@ -3,8 +3,16 @@ import { getAllEvents, getEventTypes } from '@/lib/events';
 import { EventCard } from '@/components/EventCard';
 
 export const metadata: Metadata = {
-  title: 'Events | Kappar Media',
+  title: 'Events',
   description: 'Conferences, workshops, webinars, and networking events organized by Kappar for business leaders in the MENA region.',
+  openGraph: {
+    title: 'Kappar Events',
+    description: 'Conferences, workshops, and networking events for business leaders in the MENA region.',
+    url: 'https://kappar.tv/events',
+  },
+  alternates: {
+    canonical: 'https://kappar.tv/events',
+  },
 };
 
 export default async function EventsPage({

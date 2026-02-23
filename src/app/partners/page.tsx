@@ -3,12 +3,15 @@ import { getAllPartners, getFeaturedPartners, getPartnersByType, getPartnershipT
 import { PartnerCard } from '@/components/PartnerCard';
 
 export const metadata: Metadata = {
-  title: 'Our Partners | Kappar Media',
+  title: 'Our Partners',
   description: 'Meet the corporate partners powering Kappar Media. From strategic advisors to technology providers, our partners help us deliver world-class content and events.',
   openGraph: {
     title: 'Our Partners | Kappar Media',
     description: 'Meet the corporate partners powering Kappar Media.',
     url: 'https://kappar.tv/partners',
+  },
+  alternates: {
+    canonical: 'https://kappar.tv/partners',
   },
 };
 

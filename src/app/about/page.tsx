@@ -1,5 +1,19 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
+
+export const metadata: Metadata = {
+  title: 'About',
+  description: 'Kappar Media is a forward media platform connecting business leaders with expert insights, events, and analysis from Dubai to the world.',
+  openGraph: {
+    title: 'About Kappar Media',
+    description: 'Forward media for business leaders. Expert insights, events, and analysis from Dubai to the world.',
+    url: 'https://kappar.tv/about',
+  },
+  alternates: {
+    canonical: 'https://kappar.tv/about',
+  },
+};
 
 export default function AboutPage() {
   return (

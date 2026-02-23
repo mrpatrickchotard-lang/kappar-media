@@ -1,9 +1,11 @@
+import type { Metadata } from 'next';
 import { getExpertById, getExperts } from '@/lib/expert-db';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { TagList } from '@/components/TagCloud';
 import BookingCalendar from '@/components/BookingCalendar';
 import { ExpertAvatar } from '@/components/ExpertAvatar';
+import { expertJsonLd, breadcrumbJsonLd } from '@/lib/jsonld';
 
 interface ExpertPageProps {
   params: Promise<{ id: string }>;
@@ -16,18 +18,55 @@ export async function generateStaticParams() {
   }));
 }
 
+export async function generateMetadata({ params }: ExpertPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const expert = getExpertById(id);
+  if (!expert) return { title: 'Expert Not Found' };
+
+  return {
+    title: `${expert.name} — ${expert.title}`,
+    description: expert.bio.slice(0, 160),
+    openGraph: {
+      title: `${expert.name} | Meet the Expert`,
+      description: expert.bio.slice(0, 160),
+      type: 'profile',
+      url: `https://kappar.tv/experts/${expert.id}`,
+    },
+    twitter: {
+      card: 'summary',
+      title: `${expert.name} — ${expert.title}`,
+      description: expert.bio.slice(0, 160),
+    },
+    alternates: {
+      canonical: `https://kappar.tv/experts/${expert.id}`,
+    },
+  };
+}
+
 export default async function ExpertDetailPage({ params }: ExpertPageProps) {
   const { id } = await params;
   const expert = getExpertById(id);
-  
+
   if (!expert) {
     notFound();
   }
-  
+
   const availableSlots = expert.availability.filter(s => !s.booked);
-  
+
   return (
     <div className="min-h-screen pt-32 pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(expertJsonLd(expert)) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd([
+          { name: 'Home', url: 'https://kappar.tv' },
+          { name: 'Experts', url: 'https://kappar.tv/experts' },
+          { name: expert.name, url: `https://kappar.tv/experts/${expert.id}` },
+        ])) }}
+      />
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Left Column - Expert Info */}
