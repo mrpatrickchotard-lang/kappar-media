@@ -64,6 +64,7 @@ export default function BookingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [bookingResult, setBookingResult] = useState<{ bookingId: string } | null>(null);
 
   if (pageLoading) {
     return (
@@ -123,6 +124,8 @@ export default function BookingPage() {
         throw new Error(data.error || 'Failed to create booking');
       }
 
+      const result = await res.json();
+      setBookingResult({ bookingId: result.bookingId });
       setSuccess(true);
     } catch (err) {
       const errorMessage =
@@ -164,12 +167,21 @@ export default function BookingPage() {
                   Booking Confirmed
                 </h3>
                 <p className="text-secondary mb-6">
-                  We've sent a confirmation to your email. You'll receive meeting details shortly.
+                  Your video meeting room is ready. Join when your session is scheduled to begin.
                 </p>
+                {bookingResult && (
+                  <button
+                    onClick={() => router.push(`/meet/${bookingResult.bookingId}?expert=${expert.id}`)}
+                    className="px-6 py-3 rounded-xl transition-colors mb-3 inline-block"
+                    style={{ backgroundColor: 'var(--accent-emerald)', color: '#f5f3ef' }}
+                  >
+                    Join Video Meeting
+                  </button>
+                )}
+                <br />
                 <button
                   onClick={() => router.push('/experts')}
-                  className="px-6 py-3 rounded-xl transition-colors"
-                  style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef' }}
+                  className="px-6 py-3 rounded-xl transition-colors text-secondary border border-primary hover:border-secondary"
                 >
                   Back to Experts
                 </button>
