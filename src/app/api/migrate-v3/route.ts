@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
+import { getSessionWithRole } from '@/lib/permissions';
 
 // TEMPORARY: Migration v3 - Add review workflow to events, experts, partners
 // DELETE THIS FILE after running migration
 export async function GET() {
   try {
+    const session = await getSessionWithRole();
+    if (!session || session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    }
     const sql = neon(process.env.DATABASE_URL!);
 
     // === EXPERTS ===

@@ -16,6 +16,9 @@ export async function POST(
 
     const { id } = await params;
     const eventId = parseInt(id, 10);
+    if (isNaN(eventId) || eventId <= 0) {
+      return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 });
+    }
     const body = await request.json();
     const { action, feedback } = body;
 

@@ -46,10 +46,10 @@ export default function AdminReviewPage() {
   const loadAll = async () => {
     try {
       const [articlesRes, eventsRes, expertsRes, partnersRes] = await Promise.all([
-        fetch('/api/articles').then(r => r.json()).catch(() => ({ articles: [] })),
-        fetch('/api/events-manage').then(r => r.json()).catch(() => ({ events: [] })),
-        fetch('/api/experts-manage').then(r => r.json()).catch(() => ({ experts: [] })),
-        fetch('/api/partners-manage').then(r => r.json()).catch(() => ({ partners: [] })),
+        fetch('/api/articles').then(r => r.ok ? r.json() : { articles: [] }).catch(() => ({ articles: [] })),
+        fetch('/api/events-manage').then(r => r.ok ? r.json() : { events: [] }).catch(() => ({ events: [] })),
+        fetch('/api/experts-manage').then(r => r.ok ? r.json() : { experts: [] }).catch(() => ({ experts: [] })),
+        fetch('/api/partners-manage').then(r => r.ok ? r.json() : { partners: [] }).catch(() => ({ partners: [] })),
       ]);
 
       const pending: PendingItem[] = [];

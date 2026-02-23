@@ -157,9 +157,10 @@ export async function PUT(request: Request) {
     if (illustrations !== undefined) updateData.illustrations = illustrations;
     if (readingTime) updateData.readingTime = readingTime;
 
+    const validStatuses = ['draft', 'pending_review', 'published', 'archived'];
     // Only admin can publish, feature, or archive
     if (session.user.role === 'admin') {
-      if (status) {
+      if (status && validStatuses.includes(status)) {
         updateData.status = status;
         if (status === 'published') {
           updateData.publishedAt = new Date();

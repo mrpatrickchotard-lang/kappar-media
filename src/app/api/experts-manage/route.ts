@@ -13,11 +13,12 @@ export async function GET(request: Request) {
     const db = getDb();
 
     if (publicMode) {
-      // Public: only published experts
+      // Public: only published experts, strip review fields
       const result = await db.select().from(experts)
         .where(eq(experts.status, 'published'))
         .orderBy(desc(experts.featured), experts.name);
-      return NextResponse.json({ experts: result });
+      const publicExperts = result.map(({ reviewFeedback, reviewedAt, reviewedBy, ...rest }) => rest);
+      return NextResponse.json({ experts: publicExperts });
     }
 
     // Admin: need auth

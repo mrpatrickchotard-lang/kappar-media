@@ -318,9 +318,18 @@ export default function ExpertDetailPage() {
                 View Public Profile
               </Link>
               <button
-                onClick={() => {
+                onClick={async () => {
                   const newFeatured = !expert.featured;
                   setExpert({ ...expert, featured: newFeatured });
+                  try {
+                    await fetch('/api/experts-manage', {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ id: expert.id, featured: newFeatured }),
+                    });
+                  } catch {
+                    setExpert({ ...expert, featured: !newFeatured }); // revert on failure
+                  }
                 }}
                 style={{
                   padding: '10px 20px',

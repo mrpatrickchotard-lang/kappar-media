@@ -22,9 +22,9 @@ export default function AdminDashboardPage() {
     const loadData = async () => {
       try {
         const [articlesRes, eventsRes, partnersRes] = await Promise.all([
-          fetch('/api/articles').then(r => r.json()),
-          fetch('/api/events').then(r => r.json()),
-          fetch('/api/partners-manage').then(r => r.json()),
+          fetch('/api/articles').then(r => r.ok ? r.json() : { articles: [] }),
+          fetch('/api/events').then(r => r.ok ? r.json() : { events: [] }),
+          fetch('/api/partners-manage').then(r => r.ok ? r.json() : { partners: [] }),
         ]);
 
         const articles = articlesRes.articles || [];

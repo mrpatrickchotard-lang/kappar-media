@@ -10,7 +10,7 @@ export async function getSessionWithRole() {
     ...session,
     user: {
       ...session.user,
-      role: (session.user.role || 'admin') as UserRole,
+      role: (['admin', 'writer', 'partner'].includes(session.user.role) ? session.user.role : 'writer') as UserRole,
     },
   };
 }

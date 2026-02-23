@@ -16,6 +16,9 @@ export async function POST(
 
     const { id } = await params;
     const partnerId = parseInt(id, 10);
+    if (isNaN(partnerId) || partnerId <= 0) {
+      return NextResponse.json({ error: 'Invalid partner ID' }, { status: 400 });
+    }
     const body = await request.json();
     const { action, feedback } = body;
 

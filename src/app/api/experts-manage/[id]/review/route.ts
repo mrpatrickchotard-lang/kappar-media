@@ -16,6 +16,9 @@ export async function POST(
 
     const { id } = await params;
     const expertId = parseInt(id, 10);
+    if (isNaN(expertId) || expertId <= 0) {
+      return NextResponse.json({ error: 'Invalid expert ID' }, { status: 400 });
+    }
     const body = await request.json();
     const { action, feedback } = body;
 

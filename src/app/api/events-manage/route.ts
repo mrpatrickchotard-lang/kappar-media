@@ -4,6 +4,9 @@ import { events } from '@/lib/schema';
 import { getSessionWithRole } from '@/lib/permissions';
 import { eq, desc } from 'drizzle-orm';
 
+const VALID_STATUSES = ['draft', 'pending_review', 'published', 'archived'];
+const VALID_EVENT_STATUSES = ['upcoming', 'ongoing', 'past', 'sold-out'];
+
 // GET all events (admin sees all statuses)
 export async function GET() {
   try {
@@ -58,8 +61,8 @@ export async function POST(request: Request) {
       registeredCount: body.registeredCount || 0,
       price: body.price || 0,
       currency: body.currency || 'USD',
-      eventStatus: body.eventStatus || 'upcoming',
-      status: body.status || 'draft',
+      eventStatus: VALID_EVENT_STATUSES.includes(body.eventStatus) ? body.eventStatus : 'upcoming',
+      status: VALID_STATUSES.includes(body.status) ? body.status : 'draft',
       featuredImage: body.featuredImage || null,
     }).returning();
 
@@ -94,6 +97,14 @@ export async function PUT(request: Request) {
 
     for (const field of allowedFields) {
       if (data[field] !== undefined) updateData[field] = data[field];
+    }
+
+    // Validate enum fields
+    if (updateData.status && !VALID_STATUSES.includes(updateData.status as string)) {
+      return NextResponse.json({ error: 'Invalid status value' }, { status: 400 });
+    }
+    if (updateData.eventStatus && !VALID_EVENT_STATUSES.includes(updateData.eventStatus as string)) {
+      return NextResponse.json({ error: 'Invalid event status value' }, { status: 400 });
     }
 
     const result = await db.update(events).set(updateData).where(eq(events.id, id)).returning();
