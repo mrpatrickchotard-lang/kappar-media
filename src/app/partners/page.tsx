@@ -31,10 +31,10 @@ export default async function PartnersPage({
   const selectedType = params.type || '';
 
   const allPartners = selectedType
-    ? getPartnersByType(selectedType)
-    : getAllPartners();
+    ? await getPartnersByType(selectedType)
+    : await getAllPartners();
 
-  const featuredPartners = !selectedType ? getFeaturedPartners() : [];
+  const featuredPartners = !selectedType ? await getFeaturedPartners() : [];
   const nonFeaturedPartners = !selectedType
     ? allPartners.filter(p => !p.featured)
     : allPartners;

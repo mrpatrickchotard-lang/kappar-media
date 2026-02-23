@@ -47,8 +47,12 @@ export function canReviewArticles(role: UserRole): boolean {
   return role === 'admin';
 }
 
+export function canReviewContent(role: UserRole): boolean {
+  return role === 'admin';
+}
+
 export function canSubmitForReview(role: UserRole): boolean {
-  return role === 'writer';
+  return role === 'writer' || role === 'partner';
 }
 
 export function getDashboardPath(role: UserRole): string {

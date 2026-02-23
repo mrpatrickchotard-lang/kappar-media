@@ -21,7 +21,7 @@ export default async function EventsPage({
   searchParams: Promise<{ filter?: string; type?: string }>;
 }) {
   const params = await searchParams;
-  const allEvents = getAllEvents();
+  const allEvents = await getAllEvents();
   const eventTypes = getEventTypes();
   const selectedFilter = params.filter || 'all';
   const selectedType = params.type || '';

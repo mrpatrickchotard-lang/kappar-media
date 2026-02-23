@@ -1,17 +1,53 @@
-// In-memory data store for Vercel compatibility
-// Replaces file-based storage with runtime memory
-// For production, migrate to PostgreSQL via db-operations.ts
+// Expert data library — DB-backed with in-memory fallback
+// Public functions only return experts where status = 'published'
 
 import { Expert, Booking, CallSession } from './experts';
+import { getDb } from './db';
+import { experts as expertsTable } from './schema';
+import { eq, desc } from 'drizzle-orm';
 
-// In-memory storage
-let experts: Expert[] = [
+// ========================
+// DB row → Expert mapper
+// ========================
+type DbExpert = typeof expertsTable.$inferSelect;
+
+function mapDbToExpert(row: DbExpert): Expert {
+  return {
+    id: row.expertId,
+    name: row.name,
+    title: row.title,
+    company: row.company,
+    bio: row.bio,
+    avatar: row.avatar || undefined,
+    expertise: (row.expertise as string[]) || [],
+    hourlyRate: row.hourlyRate,
+    currency: row.currency,
+    location: row.location,
+    languages: (row.languages as string[]) || [],
+    availability: generateSampleAvailability(row.expertId),
+    verified: row.verified,
+    featured: row.featured,
+    rating: row.rating,
+    reviewCount: row.reviewCount,
+    totalCalls: row.totalCalls,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+// In-memory storage for bookings/sessions (these remain in-memory)
+let bookings: Booking[] = [];
+let sessions: CallSession[] = [];
+
+// ========================
+// In-memory fallback experts
+// ========================
+const fallbackExperts: Expert[] = [
   {
     id: 'exp-001',
     name: 'Sarah Chen',
     title: 'Managing Director',
     company: 'Horizon Ventures',
-    bio: 'Sarah has 15 years of experience in fintech investing across Southeast Asia and the Middle East. She previously led investments at SoftBank and has portfolio companies valued at over $2B.',
+    bio: 'Sarah has 15 years of experience in fintech investing across Southeast Asia and the Middle East.',
     expertise: ['Venture Capital', 'Fintech', 'MENA Markets', 'Startup Scaling'],
     hourlyRate: 500,
     currency: 'USD',
@@ -30,7 +66,7 @@ let experts: Expert[] = [
     name: 'Mohammed Al-Rashid',
     title: 'Chief Technology Officer',
     company: 'Dubai Finance Lab',
-    bio: 'Mohammed leads digital transformation initiatives for major financial institutions. He is a recognized authority on Islamic fintech and regulatory technology.',
+    bio: 'Mohammed leads digital transformation initiatives for major financial institutions.',
     expertise: ['Islamic Finance', 'RegTech', 'Digital Banking', 'Compliance'],
     hourlyRate: 400,
     currency: 'USD',
@@ -44,76 +80,18 @@ let experts: Expert[] = [
     totalCalls: 89,
     createdAt: '2026-01-20T14:00:00Z',
   },
-  {
-    id: 'exp-003',
-    name: 'Elena Petrova',
-    title: 'Founder & CEO',
-    company: 'WealthTech Solutions',
-    bio: 'Elena built and exited two wealth management platforms. She advises family offices and HNWIs on digital asset strategies and portfolio diversification.',
-    expertise: ['Wealth Management', 'Digital Assets', 'Family Offices', 'Investment Strategy'],
-    hourlyRate: 600,
-    currency: 'USD',
-    location: 'London, UK',
-    languages: ['English', 'Russian', 'French'],
-    availability: generateSampleAvailability('exp-003'),
-    verified: true,
-    featured: false,
-    rating: 5.0,
-    reviewCount: 23,
-    totalCalls: 56,
-    createdAt: '2026-02-01T09:00:00Z',
-  },
-  {
-    id: 'exp-004',
-    name: "James O'Connor",
-    title: 'Partner',
-    company: 'Global Payments Group',
-    bio: 'James specializes in cross-border payments and remittances. He has advised central banks on CBDC strategies and worked with major payment processors.',
-    expertise: ['Payments', 'CBDC', 'Remittances', 'Financial Infrastructure'],
-    hourlyRate: 450,
-    currency: 'USD',
-    location: 'Singapore',
-    languages: ['English'],
-    availability: generateSampleAvailability('exp-004'),
-    verified: true,
-    featured: false,
-    rating: 4.7,
-    reviewCount: 19,
-    totalCalls: 43,
-    createdAt: '2026-02-05T11:00:00Z',
-  },
-  {
-    id: 'exp-005',
-    name: 'Aisha Patel',
-    title: 'Head of Innovation',
-    company: 'MENA Banking Consortium',
-    bio: 'Aisha drives innovation strategy for a consortium of 12 regional banks. She is an expert in open banking, API ecosystems, and fintech partnerships.',
-    expertise: ['Open Banking', 'APIs', 'Banking Innovation', 'Partnerships'],
-    hourlyRate: 350,
-    currency: 'USD',
-    location: 'Abu Dhabi, UAE',
-    languages: ['English', 'Hindi', 'Arabic'],
-    availability: generateSampleAvailability('exp-005'),
-    verified: true,
-    featured: true,
-    rating: 4.8,
-    reviewCount: 28,
-    totalCalls: 67,
-    createdAt: '2026-02-10T13:00:00Z',
-  },
 ];
 
-let bookings: Booking[] = [];
-let sessions: CallSession[] = [];
-
-// Deterministic seeding function for consistent booking states
+// ========================
+// Availability generator (kept for compatibility)
+// ========================
 function getSeededRandom(seed: string, index: number): number {
   const combined = seed + index.toString();
   let hash = 0;
   for (let i = 0; i < combined.length; i++) {
     const char = combined.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    hash = hash & hash;
   }
   return Math.abs(hash % 1000) / 1000;
 }
@@ -149,7 +127,6 @@ function generateSampleAvailability(expertId: string): Array<{
     ];
 
     for (const time of timeSlots) {
-      // Use deterministic seeding: approximately 30% booked slots
       const isBooked = getSeededRandom(expertId, slotIndex) > 0.7;
       slots.push({
         id: `slot-${expertId}-${dateStr}-${time.start}`,
@@ -164,31 +141,60 @@ function generateSampleAvailability(expertId: string): Array<{
   return slots;
 }
 
-export function getExperts(): Expert[] {
-  return experts;
-}
+// ========================
+// Public query functions (only published experts)
+// ========================
 
-export function getExpertById(id: string): Expert | null {
-  return experts.find(e => e.id === id) || null;
-}
-
-export function getFeaturedExperts(): Expert[] {
-  return experts.filter(e => e.featured);
-}
-
-export function saveExpert(expert: Expert): void {
-  const index = experts.findIndex(e => e.id === expert.id);
-  if (index >= 0) {
-    experts[index] = expert;
-  } else {
-    experts.push(expert);
+export async function getExperts(): Promise<Expert[]> {
+  try {
+    const db = getDb();
+    const rows = await db.select().from(expertsTable)
+      .where(eq(expertsTable.status, 'published'))
+      .orderBy(desc(expertsTable.featured), expertsTable.name);
+    if (rows.length === 0) return [...fallbackExperts];
+    return rows.map(mapDbToExpert);
+  } catch {
+    return [...fallbackExperts];
   }
 }
 
-export function deleteExpert(id: string): void {
-  experts = experts.filter(e => e.id !== id);
+export async function getExpertById(id: string): Promise<Expert | null> {
+  try {
+    const db = getDb();
+    const rows = await db.select().from(expertsTable)
+      .where(eq(expertsTable.expertId, id));
+    // For expert detail page, show even if not published (for preview purposes)
+    // But for public listing, getExperts() filters by published
+    if (rows.length === 0) return fallbackExperts.find(e => e.id === id) || null;
+    return mapDbToExpert(rows[0]);
+  } catch {
+    return fallbackExperts.find(e => e.id === id) || null;
+  }
 }
 
+export async function getFeaturedExperts(): Promise<Expert[]> {
+  try {
+    const db = getDb();
+    const rows = await db.select().from(expertsTable)
+      .where(eq(expertsTable.status, 'published'));
+    if (rows.length === 0) return fallbackExperts.filter(e => e.featured);
+    return rows.map(mapDbToExpert).filter(e => e.featured);
+  } catch {
+    return fallbackExperts.filter(e => e.featured);
+  }
+}
+
+// Kept for backward compatibility (in-memory mutations)
+export function saveExpert(expert: Expert): void {
+  // No-op for now — admin uses API for mutations
+  void expert;
+}
+
+export function deleteExpert(id: string): void {
+  void id;
+}
+
+// Booking functions remain in-memory
 export function getBookings(): Booking[] {
   return bookings;
 }
@@ -218,4 +224,3 @@ export function saveSession(session: CallSession): void {
     sessions.push(session);
   }
 }
-

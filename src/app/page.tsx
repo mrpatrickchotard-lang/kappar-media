@@ -12,8 +12,8 @@ import { CategoryIcon } from '@/components/CategoryIcon';
 export default async function HomePage() {
   const featuredArticles = await getFeaturedArticles();
   const latestArticles = await getLatestArticles(6);
-  const upcomingEvents = getUpcomingEvents(3);
-  const partners = getAllPartners();
+  const upcomingEvents = await getUpcomingEvents(3);
+  const partners = await getAllPartners();
 
   const heroArticle = featuredArticles[0];
   const otherFeatured = featuredArticles.slice(1, 3);

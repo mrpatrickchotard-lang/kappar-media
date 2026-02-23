@@ -20,7 +20,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: ExpertPageProps): Promise<Metadata> {
   const { id } = await params;
-  const expert = getExpertById(id);
+  const expert = await getExpertById(id);
   if (!expert) return { title: 'Expert Not Found' };
 
   return {
@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: ExpertPageProps): Promise<Met
 
 export default async function ExpertDetailPage({ params }: ExpertPageProps) {
   const { id } = await params;
-  const expert = getExpertById(id);
+  const expert = await getExpertById(id);
 
   if (!expert) {
     notFound();

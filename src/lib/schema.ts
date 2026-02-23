@@ -22,6 +22,11 @@ export const experts = pgTable('experts', {
   rating: real('rating').notNull().default(0),
   reviewCount: integer('review_count').notNull().default(0),
   totalCalls: integer('total_calls').notNull().default(0),
+  status: varchar('status', { length: 50 }).notNull().default('published'),  // draft | pending_review | published | archived
+  managedBy: integer('managed_by'),  // FK to users.id (who submitted/manages this expert)
+  reviewFeedback: text('review_feedback'),
+  reviewedAt: timestamp('reviewed_at'),
+  reviewedBy: integer('reviewed_by'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
@@ -150,6 +155,10 @@ export const partners = pgTable('partners', {
   keyHighlights: jsonb('key_highlights').$type<string[]>().notNull().default([]),
   socialLinks: jsonb('social_links').$type<Record<string, string>>().notNull().default({}),
   logoUrl: varchar('logo_url', { length: 500 }),
+  status: varchar('status', { length: 50 }).notNull().default('published'),  // draft | pending_review | published | archived
+  reviewFeedback: text('review_feedback'),
+  reviewedAt: timestamp('reviewed_at'),
+  reviewedBy: integer('reviewed_by'),
   managedBy: integer('managed_by'),  // FK to users table (partner user)
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -179,7 +188,11 @@ export const events = pgTable('events', {
   registeredCount: integer('registered_count').notNull().default(0),
   price: integer('price').notNull().default(0),
   currency: varchar('currency', { length: 3 }).notNull().default('USD'),
-  status: varchar('status', { length: 50 }).notNull().default('upcoming'),
+  eventStatus: varchar('event_status', { length: 50 }).notNull().default('upcoming'),  // upcoming | ongoing | past | sold-out
+  status: varchar('status', { length: 50 }).notNull().default('published'),  // draft | pending_review | published | archived
+  reviewFeedback: text('review_feedback'),
+  reviewedAt: timestamp('reviewed_at'),
+  reviewedBy: integer('reviewed_by'),
   featuredImage: varchar('featured_image', { length: 500 }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),

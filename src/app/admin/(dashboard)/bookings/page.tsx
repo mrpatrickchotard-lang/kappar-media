@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { getBookings, getExpertById } from '@/lib/expert-db';
+import { getBookings } from '@/lib/expert-db';
 
 export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<Array<{
@@ -175,7 +175,7 @@ export default function AdminBookingsPage() {
             </thead>
             <tbody style={{ borderTop: '1px solid var(--border-primary)' }}>
               {bookings.map((booking, index) => {
-                const expert = getExpertById(booking.expertId);
+                const expertName = booking.expertId || 'Unknown Expert';
                 const statusColor = getStatusColor(booking.status);
 
                 return (
@@ -218,7 +218,7 @@ export default function AdminBookingsPage() {
                       fontSize: '14px',
                       fontFamily: 'var(--font-body)'
                     }}>
-                      {expert ? expert.name : 'Unknown Expert'}
+                      {expertName}
                     </td>
                     <td style={{
                       padding: '16px 24px',
@@ -292,7 +292,7 @@ export default function AdminBookingsPage() {
                           </div>
                           <div>
                             <p style={{ color: 'var(--text-tertiary)', fontSize: '11px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Expert</p>
-                            <p style={{ color: 'var(--text-primary)', fontSize: '14px' }}>{expert ? expert.name : 'Unknown'}</p>
+                            <p style={{ color: 'var(--text-primary)', fontSize: '14px' }}>{expertName}</p>
                           </div>
                           <div>
                             <p style={{ color: 'var(--text-tertiary)', fontSize: '11px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Schedule</p>

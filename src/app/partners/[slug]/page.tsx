@@ -7,7 +7,7 @@ import { PartnerCard } from '@/components/PartnerCard';
 import { sanitizeHtml } from '@/lib/sanitize';
 
 export async function generateStaticParams() {
-  const partners = getAllPartners();
+  const partners = await getAllPartners();
   return partners.map((partner) => ({ slug: partner.slug }));
 }
 
@@ -17,7 +17,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const partner = getPartnerBySlug(slug);
+  const partner = await getPartnerBySlug(slug);
   if (!partner) return { title: 'Partner Not Found | Kappar Media' };
   return {
     title: `${partner.name} — Partner`,
@@ -58,10 +58,10 @@ export default async function PartnerDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const partner = getPartnerBySlug(slug);
+  const partner = await getPartnerBySlug(slug);
   if (!partner) notFound();
 
-  const related = getRelatedPartners(slug, 3);
+  const related = await getRelatedPartners(slug, 3);
   const typeColor = typeColors[partner.partnershipType] || typeColors.strategic;
 
   return (

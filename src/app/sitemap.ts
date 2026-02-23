@@ -69,7 +69,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Event pages
-  const events = getAllEvents();
+  const events = await getAllEvents();
   const eventPages: MetadataRoute.Sitemap = events.map((event) => ({
     url: `${BASE_URL}/events/${event.slug}`,
     lastModified: new Date(event.date),
@@ -78,7 +78,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Expert pages
-  const experts = getExperts();
+  const experts = await getExperts();
   const expertPages: MetadataRoute.Sitemap = experts.map((expert) => ({
     url: `${BASE_URL}/experts/${expert.id}`,
     lastModified: new Date(),
@@ -87,7 +87,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Partner pages
-  const partners = getAllPartners();
+  const partners = await getAllPartners();
   const partnerPages: MetadataRoute.Sitemap = partners.map((partner) => ({
     url: `${BASE_URL}/partners/${partner.slug}`,
     lastModified: new Date(),

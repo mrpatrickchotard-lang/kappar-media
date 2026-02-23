@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getExpertById, getExperts } from '@/lib/expert-db';
+// Expert loaded via API
 
 interface Expert {
   id: string;
@@ -31,15 +31,14 @@ export default function ExpertDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const data = getExpertById(expertId);
-      if (data) {
-        setExpert(data as Expert);
-      }
-      setLoading(false);
-    } catch {
-      setLoading(false);
-    }
+    fetch(`/api/experts-manage?public=true`)
+      .then(res => res.json())
+      .then(data => {
+        const found = (data.experts || []).find((e: { expertId: string }) => e.expertId === expertId);
+        if (found) setExpert(found as Expert);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, [expertId]);
 
   if (loading) {

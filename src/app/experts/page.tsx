@@ -18,8 +18,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ExpertsPage() {
-  const experts = getExperts();
+export default async function ExpertsPage() {
+  const experts = await getExperts();
   const featuredExperts = experts.filter(e => e.featured);
 
   return (

@@ -67,6 +67,12 @@ export async function PUT(request: Request) {
       for (const field of adminFields) {
         if (data[field] !== undefined) updateData[field] = data[field];
       }
+      // Admin can set status directly
+      if (data.status !== undefined) updateData.status = data.status;
+    } else {
+      // Partner edits go to pending_review
+      updateData.status = 'pending_review';
+      updateData.reviewFeedback = null;
     }
 
     const result = await db.update(partners).set(updateData).where(eq(partners.id, id)).returning();

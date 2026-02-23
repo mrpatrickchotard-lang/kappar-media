@@ -1,10 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
-import { getExpertById } from '@/lib/expert-db';
 import { format, parseISO } from 'date-fns';
-import type { Expert, AvailabilitySlot } from '@/lib/experts';
+
+interface AvailabilitySlot {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  available: boolean;
+}
+
+interface Expert {
+  id: string;
+  name: string;
+  title: string;
+  hourlyRate: number;
+  availability: AvailabilitySlot[];
+}
 
 interface BookingFormData {
   name: string;
@@ -23,8 +37,23 @@ export default function BookingPage() {
   const { expertId } = useParams<{ expertId: string }>();
   const slotId = searchParams.get('slot');
 
-  const expert = getExpertById(expertId);
-  const slot = expert?.availability.find((s) => s.id === slotId);
+  const [expert, setExpert] = useState<Expert | null>(null);
+  const [pageLoading, setPageLoading] = useState(true);
+
+  const slot = expert?.availability?.find((s) => s.id === slotId) || null;
+
+  useEffect(() => {
+    fetch(`/api/experts-manage?public=true`)
+      .then(res => res.json())
+      .then(data => {
+        const experts = data.experts || [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const found = experts.find((e: any) => e.id === expertId || e.expertId === expertId);
+        setExpert(found || null);
+        setPageLoading(false);
+      })
+      .catch(() => setPageLoading(false));
+  }, [expertId]);
 
   const [formData, setFormData] = useState<BookingFormData>({
     name: '',
@@ -35,6 +64,17 @@ export default function BookingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen pt-32 pb-24 flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <div className="w-5 h-5 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--teal)', borderTopColor: 'transparent' }} />
+          <p className="text-secondary text-sm">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!expert || !slot) {
     return (
@@ -92,7 +132,7 @@ export default function BookingPage() {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="min-h-screen pt-32 pb-24">
       <div className="max-w-3xl mx-auto px-6 lg:px-8">

@@ -23,7 +23,16 @@ interface PartnerData {
   keyHighlights: string[];
   socialLinks: Record<string, string>;
   logoUrl: string;
+  status: string;
+  reviewFeedback: string | null;
 }
+
+const statusInfo: Record<string, { bg: string; text: string; label: string; description: string }> = {
+  draft: { bg: 'rgba(234,179,8,0.12)', text: '#ca8a04', label: 'Draft', description: 'Not yet submitted for review' },
+  pending_review: { bg: 'rgba(59,130,246,0.12)', text: '#2563eb', label: 'Pending Review', description: 'Awaiting admin approval' },
+  published: { bg: 'rgba(34,197,94,0.12)', text: '#16a34a', label: 'Published', description: 'Visible on the public site' },
+  archived: { bg: 'rgba(107,114,128,0.12)', text: '#6b7280', label: 'Archived', description: 'Not visible on the public site' },
+};
 
 export default function PartnerDashboard() {
   const [partner, setPartner] = useState<PartnerData | null>(null);
@@ -125,11 +134,18 @@ export default function PartnerDashboard() {
   return (
     <div className="max-w-5xl mx-auto px-6 py-10">
       {/* Header */}
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-display text-3xl font-light tracking-wide" style={{ color: 'var(--text-primary)' }}>
-            {partner.name}
-          </h1>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="font-display text-3xl font-light tracking-wide" style={{ color: 'var(--text-primary)' }}>
+              {partner.name}
+            </h1>
+            {partner.status && statusInfo[partner.status] && (
+              <span className="text-xs px-2.5 py-1 rounded-full" style={{ backgroundColor: statusInfo[partner.status].bg, color: statusInfo[partner.status].text }}>
+                {statusInfo[partner.status].label}
+              </span>
+            )}
+          </div>
           <p className="font-body text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
             Edit your partner profile · <Link href={`/partners/${partner.slug}`} style={{ color: 'var(--teal)' }} target="_blank">View public page →</Link>
           </p>
@@ -140,9 +156,22 @@ export default function PartnerDashboard() {
           className="px-6 py-2.5 rounded-xl text-sm font-body transition-opacity hover:opacity-90 disabled:opacity-50"
           style={{ backgroundColor: saved ? '#16a34a' : 'var(--accent-primary)', color: '#fff' }}
         >
-          {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Changes'}
+          {saving ? 'Saving...' : saved ? 'Submitted for Review' : 'Save & Submit for Review'}
         </button>
       </div>
+
+      {/* Review info banner */}
+      <div className="mb-6 p-4 rounded-xl text-sm" style={{ backgroundColor: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)', color: '#2563eb' }}>
+        Profile changes are reviewed by an admin before going live on the public site.
+      </div>
+
+      {/* Review feedback (if rejected) */}
+      {partner.reviewFeedback && partner.status === 'draft' && (
+        <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.2)' }}>
+          <p className="text-xs font-body font-medium mb-1" style={{ color: '#ca8a04' }}>Admin Feedback</p>
+          <p className="text-sm font-body" style={{ color: 'var(--text-primary)' }}>{partner.reviewFeedback}</p>
+        </div>
+      )}
 
       {error && (
         <div className="mb-6 p-3 rounded-xl text-sm" style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>

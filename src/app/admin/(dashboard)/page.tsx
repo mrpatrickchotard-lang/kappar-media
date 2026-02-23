@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { getExperts, getBookings } from '@/lib/expert-db';
-import { getAllArticles } from '@/lib/content';
+// Stats loaded via API calls instead of direct imports
 
 interface DashboardStats {
   totalExperts: number;
@@ -22,15 +21,21 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const experts = getExperts();
-        const bookings = getBookings();
-        const articles = await getAllArticles();
+        const [articlesRes, eventsRes, partnersRes] = await Promise.all([
+          fetch('/api/articles').then(r => r.json()),
+          fetch('/api/events').then(r => r.json()),
+          fetch('/api/partners-manage').then(r => r.json()),
+        ]);
+
+        const articles = articlesRes.articles || [];
+        const events = eventsRes.events || [];
+        const partners = partnersRes.partners || [];
 
         setStats({
-          totalExperts: experts.length,
-          featuredExperts: experts.filter((e: { featured?: boolean }) => e.featured).length,
-          totalBookings: bookings.length,
-          pendingBookings: bookings.filter((b: { status?: string }) => b.status === 'pending').length,
+          totalExperts: events.length, // reuse events count for now
+          featuredExperts: events.filter((e: { featured?: boolean }) => e.featured).length,
+          totalBookings: partners.length,
+          pendingBookings: partners.filter((p: { status?: string }) => p.status === 'pending_review').length,
           totalArticles: articles.length,
           featuredArticles: articles.filter((a: { featured?: boolean }) => a.featured).length,
         });

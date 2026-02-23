@@ -9,7 +9,7 @@ import { sanitizeHtml } from '@/lib/sanitize';
 import { eventJsonLd, breadcrumbJsonLd } from '@/lib/jsonld';
 
 export async function generateStaticParams() {
-  const events = getAllEvents();
+  const events = await getAllEvents();
   return events.map((event) => ({
     slug: event.slug,
   }));
@@ -21,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const event = getEventBySlug(slug);
+  const event = await getEventBySlug(slug);
   if (!event) return { title: 'Event Not Found' };
   return {
     title: event.title,
@@ -75,13 +75,13 @@ export default async function EventDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const event = getEventBySlug(slug);
+  const event = await getEventBySlug(slug);
 
   if (!event) {
     notFound();
   }
 
-  const relatedEvents = getUpcomingEvents(3).filter(e => e.slug !== event.slug).slice(0, 2);
+  const relatedEvents = (await getUpcomingEvents(3)).filter(e => e.slug !== event.slug).slice(0, 2);
   const isPast = event.status === 'past';
 
   return (
