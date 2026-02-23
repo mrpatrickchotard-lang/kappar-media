@@ -3,6 +3,7 @@ import { getDb } from '@/lib/db';
 import { experts } from '@/lib/schema';
 import { getSessionWithRole } from '@/lib/permissions';
 import { eq, desc } from 'drizzle-orm';
+import { getExperts } from '@/lib/expert-db';
 
 // GET experts (admin sees all with all statuses, public sees published only)
 export async function GET(request: Request) {
@@ -10,15 +11,15 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const publicMode = url.searchParams.get('public') === 'true';
 
-    const db = getDb();
-
     if (publicMode) {
-      // Public: only published experts, strip review fields
-      const result = await db.select().from(experts)
-        .where(eq(experts.status, 'published'))
-        .orderBy(desc(experts.featured), experts.name);
-      const publicExperts = result.map(({ reviewFeedback, reviewedAt, reviewedBy, ...rest }) => rest);
-      return NextResponse.json({ experts: publicExperts });
+      // Use expert-db which handles DB + fallback + generates availability
+      try {
+        const allExperts = await getExperts();
+        return NextResponse.json({ experts: allExperts });
+      } catch {
+        // If even expert-db fails, return empty
+        return NextResponse.json({ experts: [] });
+      }
     }
 
     // Admin: need auth
@@ -27,8 +28,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const result = await db.select().from(experts).orderBy(desc(experts.createdAt));
-    return NextResponse.json({ experts: result });
+    try {
+      const db = getDb();
+      const result = await db.select().from(experts).orderBy(desc(experts.createdAt));
+      return NextResponse.json({ experts: result });
+    } catch {
+      // Fallback for admin too if DB is down
+      const allExperts = await getExperts();
+      return NextResponse.json({ experts: allExperts });
+    }
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to fetch experts';
     return NextResponse.json({ error: message }, { status: 500 });
