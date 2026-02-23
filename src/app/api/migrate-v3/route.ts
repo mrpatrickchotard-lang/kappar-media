@@ -42,6 +42,14 @@ export async function GET() {
     )`;
     results.push('experts table created');
 
+    // Add missing columns to experts (in case table existed without them)
+    await sql`ALTER TABLE experts ADD COLUMN IF NOT EXISTS status VARCHAR(50) NOT NULL DEFAULT 'published'`;
+    await sql`ALTER TABLE experts ADD COLUMN IF NOT EXISTS managed_by INTEGER`;
+    await sql`ALTER TABLE experts ADD COLUMN IF NOT EXISTS review_feedback TEXT`;
+    await sql`ALTER TABLE experts ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP`;
+    await sql`ALTER TABLE experts ADD COLUMN IF NOT EXISTS reviewed_by INTEGER`;
+    results.push('experts columns ensured');
+
     // === CREATE AVAILABILITY_SLOTS TABLE ===
     await sql`CREATE TABLE IF NOT EXISTS availability_slots (
       id SERIAL PRIMARY KEY,
@@ -88,6 +96,15 @@ export async function GET() {
     )`;
     results.push('events table created');
 
+    // Add missing columns to events (in case table existed without them)
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS event_status VARCHAR(50) NOT NULL DEFAULT 'upcoming'`;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS status VARCHAR(50) NOT NULL DEFAULT 'published'`;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS review_feedback TEXT`;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP`;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS reviewed_by INTEGER`;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS featured_image VARCHAR(500)`;
+    results.push('events columns ensured');
+
     // === CREATE PARTNERS TABLE ===
     await sql`CREATE TABLE IF NOT EXISTS partners (
       id SERIAL PRIMARY KEY,
@@ -117,6 +134,14 @@ export async function GET() {
       updated_at TIMESTAMP NOT NULL DEFAULT NOW()
     )`;
     results.push('partners table created');
+
+    // Add missing columns to partners (in case table existed without them)
+    await sql`ALTER TABLE partners ADD COLUMN IF NOT EXISTS status VARCHAR(50) NOT NULL DEFAULT 'published'`;
+    await sql`ALTER TABLE partners ADD COLUMN IF NOT EXISTS review_feedback TEXT`;
+    await sql`ALTER TABLE partners ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP`;
+    await sql`ALTER TABLE partners ADD COLUMN IF NOT EXISTS reviewed_by INTEGER`;
+    await sql`ALTER TABLE partners ADD COLUMN IF NOT EXISTS managed_by INTEGER`;
+    results.push('partners columns ensured');
 
     // === CREATE CONTACT_SUBMISSIONS TABLE ===
     await sql`CREATE TABLE IF NOT EXISTS contact_submissions (
