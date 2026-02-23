@@ -1,83 +1,145 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import VideoRoom from '@/components/VideoRoom';
+
+interface BookingData {
+  bookingId: string;
+  expertId: string;
+  clientName: string;
+  clientEmail: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  duration: number;
+  hourlyRate: number;
+  totalAmount: number;
+  status: string;
+  meetingLink: string | null;
+  topic: string;
+  createdAt: string;
+}
 
 interface ExpertInfo {
   id: string;
   name: string;
+  title: string;
   hourlyRate: number;
 }
 
 export default function MeetingPage() {
-  const searchParams = useSearchParams();
   const { bookingId } = useParams<{ bookingId: string }>();
-  const expertId = searchParams.get('expert');
 
+  const [booking, setBooking] = useState<BookingData | null>(null);
   const [expert, setExpert] = useState<ExpertInfo | null>(null);
-  const [booking, setBooking] = useState<{
-    id: string;
-    expertId: string | null;
-    clientName: string;
-    scheduledEndTime: Date;
-    hourlyRate: number;
-  } | null>(null);
   const [callEnded, setCallEnded] = useState(false);
   const [finalCharge, setFinalCharge] = useState(0);
   const [actualMinutes, setActualMinutes] = useState(0);
   const [pageLoading, setPageLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!expertId) {
+    if (!bookingId) {
       setPageLoading(false);
       return;
     }
-    fetch(`/api/experts-manage?public=true`)
-      .then(res => res.json())
-      .then(data => {
-        const experts = data.experts || [];
-        const found = experts.find((e: ExpertInfo & { expertId?: string }) => e.id === expertId || e.expertId === expertId);
-        if (found) {
-          setExpert(found);
-          setBooking({
-            id: bookingId,
-            expertId: expertId,
-            clientName: 'Demo Client',
-            scheduledEndTime: new Date(Date.now() + 60 * 60 * 1000),
-            hourlyRate: found.hourlyRate || 500,
-          });
-        }
-        setPageLoading(false);
-      })
-      .catch(() => setPageLoading(false));
-  }, [bookingId, expertId]);
 
-  const handleEndCall = (minutes: number, charge: number) => {
+    // Load booking from DB
+    fetch(`/api/bookings?id=${encodeURIComponent(bookingId)}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Booking not found');
+        return res.json();
+      })
+      .then(data => {
+        if (!data.booking) throw new Error('Booking not found');
+        setBooking(data.booking);
+
+        // Load expert info
+        return fetch(`/api/experts-manage?public=true`)
+          .then(res => res.ok ? res.json() : { experts: [] })
+          .then(expertData => {
+            const experts = expertData.experts || [];
+            const found = experts.find(
+              (e: ExpertInfo & { expertId?: string }) =>
+                e.id === data.booking.expertId || e.expertId === data.booking.expertId
+            );
+            if (found) {
+              setExpert(found);
+            } else {
+              // Fallback: use booking data for display
+              setExpert({
+                id: data.booking.expertId,
+                name: 'Expert',
+                title: 'Consultant',
+                hourlyRate: data.booking.hourlyRate,
+              });
+            }
+          });
+      })
+      .catch(err => {
+        console.error('Failed to load meeting:', err);
+        setError(err.message || 'Failed to load meeting');
+      })
+      .finally(() => setPageLoading(false));
+  }, [bookingId]);
+
+  const handleEndCall = async (minutes: number, charge: number) => {
     setActualMinutes(minutes);
     setFinalCharge(charge);
     setCallEnded(true);
+
+    // Update booking in DB with actual duration and charge
+    try {
+      await fetch('/api/bookings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingId,
+          status: 'completed',
+          actualDuration: minutes,
+          actualCharge: Math.round(charge * 100) / 100,
+        }),
+      });
+    } catch (err) {
+      console.error('Failed to update booking after call:', err);
+    }
   };
 
   if (pageLoading) {
     return (
       <div className="min-h-screen pt-32 pb-24 flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <div className="w-5 h-5 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--teal)', borderTopColor: 'transparent' }} />
-          <p className="text-secondary text-sm">Loading...</p>
+          <div
+            className="w-5 h-5 border-2 rounded-full animate-spin"
+            style={{ borderColor: 'var(--teal)', borderTopColor: 'transparent' }}
+          />
+          <p className="text-secondary text-sm">Loading your meeting...</p>
         </div>
       </div>
     );
   }
 
-  if (!booking || !expert) {
+  if (error || !booking || !expert) {
     return (
       <div className="min-h-screen pt-32 pb-24 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="font-display text-2xl text-primary mb-4">Meeting not found</h1>
-          <Link href="/experts" className="text-[var(--accent-emerald)] hover:underline">
-            Browse Experts
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h1 className="font-display text-2xl text-primary mb-2">Meeting Not Found</h1>
+          <p className="text-secondary mb-6">
+            {error || 'This meeting link may have expired or the booking doesn\'t exist.'}
+          </p>
+          <Link
+            href="/experts"
+            className="inline-block px-6 py-3 rounded-lg transition-colors"
+            style={{ backgroundColor: 'var(--accent-primary)', color: '#f5f3ef' }}
+          >
+            Book a New Session
           </Link>
         </div>
       </div>
@@ -96,7 +158,6 @@ export default function MeetingPage() {
             </div>
 
             <h1 className="font-display text-3xl font-light text-primary mb-4">Session Complete</h1>
-
             <p className="text-secondary mb-8">Thank you for using Kappar Meet the Expert</p>
 
             <div className="bg-primary rounded-xl p-6 mb-8">
@@ -137,19 +198,45 @@ export default function MeetingPage() {
     );
   }
 
+  // Calculate scheduled end time from booking date + endTime
+  const scheduledEnd = new Date(`${booking.date}T${booking.endTime}:00`);
+  // If the scheduled time is in the past (demo purposes), set 1hr from now
+  const scheduledEndTime = scheduledEnd > new Date()
+    ? scheduledEnd
+    : new Date(Date.now() + 60 * 60 * 1000);
+
   return (
     <div className="min-h-screen pt-24 pb-8">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="mb-4">
-          <h1 className="font-display text-2xl text-primary">Session with {expert.name}</h1>
-          <p className="text-tertiary">Booking #{booking.id}</p>
+        {/* Meeting Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="font-display text-2xl text-primary">Session with {expert.name}</h1>
+            <p className="text-tertiary text-sm mt-1">
+              {booking.date} &bull; {booking.startTime} &ndash; {booking.endTime} &bull; Booking #{booking.bookingId}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full text-xs font-medium bg-[var(--accent-emerald)]/20 text-[var(--accent-emerald)]">
+              {booking.status === 'confirmed' ? 'Ready' : booking.status}
+            </span>
+          </div>
         </div>
 
+        {/* Topic Banner */}
+        {booking.topic && (
+          <div className="mb-4 px-4 py-3 rounded-xl bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30">
+            <p className="text-sm text-secondary">
+              <span className="text-[var(--accent-gold)] font-medium">Topic:</span> {booking.topic}
+            </p>
+          </div>
+        )}
+
         <VideoRoom
-          bookingId={booking.id}
+          bookingId={booking.bookingId}
           expertName={expert.name}
           clientName={booking.clientName}
-          scheduledEndTime={new Date(booking.scheduledEndTime)}
+          scheduledEndTime={scheduledEndTime}
           hourlyRate={booking.hourlyRate}
           onEndCall={handleEndCall}
         />

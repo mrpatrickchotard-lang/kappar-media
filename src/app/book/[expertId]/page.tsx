@@ -9,7 +9,7 @@ interface AvailabilitySlot {
   date: string;
   startTime: string;
   endTime: string;
-  available: boolean;
+  booked: boolean;
 }
 
 interface Expert {
