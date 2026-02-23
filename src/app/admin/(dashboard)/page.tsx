@@ -61,9 +61,35 @@ export default function AdminDashboardPage() {
     return (
       <div>
         <h1 className="font-display text-3xl font-light tracking-wide text-primary">Dashboard</h1>
-        <div className="mt-4 flex items-center gap-3">
-          <div className="w-5 h-5 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--teal)', borderTopColor: 'transparent' }} />
-          <p className="text-secondary text-sm">Loading dashboard...</p>
+        <p className="text-secondary mt-2">Overview of your Kappar Media platform</p>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 mb-12">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="bg-card border border-primary rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 rounded-full skeleton" />
+                <div className="w-12 h-8 skeleton" />
+              </div>
+              <div className="w-24 h-5 skeleton mb-2" />
+              <div className="w-16 h-4 skeleton" />
+            </div>
+          ))}
+        </div>
+        <div className="grid lg:grid-cols-2 gap-8">
+          <div className="bg-card border border-primary rounded-2xl p-6">
+            <div className="w-32 h-5 skeleton mb-6" />
+            <div className="space-y-3">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="flex items-center gap-3 p-4 rounded-xl" style={{ backgroundColor: 'var(--bg-primary)' }}>
+                  <div className="w-10 h-10 rounded-full skeleton" />
+                  <div className="w-32 h-4 skeleton" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="bg-card border border-primary rounded-2xl p-6">
+            <div className="w-32 h-5 skeleton mb-6" />
+            <div className="w-48 h-4 skeleton" />
+          </div>
         </div>
       </div>
     );
@@ -99,6 +125,7 @@ export default function AdminDashboardPage() {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -125,6 +152,7 @@ export default function AdminDashboardPage() {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -151,6 +179,7 @@ export default function AdminDashboardPage() {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -183,6 +212,7 @@ export default function AdminDashboardPage() {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
@@ -201,6 +231,7 @@ export default function AdminDashboardPage() {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -224,6 +255,7 @@ export default function AdminDashboardPage() {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -247,6 +279,7 @@ export default function AdminDashboardPage() {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"

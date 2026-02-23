@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { ConfirmDialog, SkeletonTable } from '@/components/AdminShared';
 
 const TABLES = [
   'articles', 'partners', 'events', 'users', 'experts',
   'bookings', 'contact_submissions', 'newsletter_subscribers',
 ];
+
+const NUMERIC_FIELD_PATTERNS = ['rate', 'amount', 'price', 'count', 'capacity'];
 
 export default function DatabaseExplorer() {
   const [selectedTable, setSelectedTable] = useState('articles');
@@ -17,6 +20,8 @@ export default function DatabaseExplorer() {
   const [editData, setEditData] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteTargetIndex, setDeleteTargetIndex] = useState<number | null>(null);
 
   const fetchData = (table: string, page: number) => {
     setLoading(true);
@@ -76,10 +81,36 @@ export default function DatabaseExplorer() {
     setFeedback('');
   };
 
+  const isNumericField = (fieldName: string): boolean => {
+    const lowerName = fieldName.toLowerCase();
+    return NUMERIC_FIELD_PATTERNS.some(pattern => lowerName.includes(pattern));
+  };
+
+  const validateNumericFields = (): boolean => {
+    for (const col of columns) {
+      if (col === 'id') continue;
+      if (isNumericField(col)) {
+        const value = editData[col];
+        if (value && value !== '—' && value !== '') {
+          if (isNaN(parseFloat(value))) {
+            setFeedback(`Field "${col}" must be a number`);
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  };
+
   const saveEdit = async () => {
     if (editingRow === null) return;
     setSaving(true);
     setFeedback('');
+
+    if (!validateNumericFields()) {
+      setSaving(false);
+      return;
+    }
 
     const row = rows[editingRow];
     const id = row.id;
@@ -121,11 +152,19 @@ export default function DatabaseExplorer() {
     }
   };
 
-  const deleteRow = async (rowIndex: number) => {
-    const row = rows[rowIndex];
+  const openDeleteConfirm = (rowIndex: number) => {
+    setDeleteTargetIndex(rowIndex);
+    setDeleteConfirmOpen(true);
+  };
+
+  const deleteRow = async () => {
+    if (deleteTargetIndex === null) return;
+
+    const row = rows[deleteTargetIndex];
     const id = row.id;
 
-    if (!confirm(`Delete row #${id} from ${selectedTable}? This cannot be undone.`)) return;
+    setDeleteConfirmOpen(false);
+    setDeleteTargetIndex(null);
 
     try {
       const res = await fetch('/api/database', {
@@ -221,11 +260,9 @@ export default function DatabaseExplorer() {
       </div>
 
       {/* Data table */}
-      <div className="rounded-xl overflow-x-auto" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}>
+      <div className="admin-table-wrapper rounded-xl overflow-x-auto" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-primary)' }}>
         {loading ? (
-          <div className="p-10 text-center">
-            <div className="w-6 h-6 border-2 rounded-full animate-spin mx-auto" style={{ borderColor: 'var(--teal)', borderTopColor: 'transparent' }} />
-          </div>
+          <SkeletonTable columns={columns.length + 1} rows={5} />
         ) : error ? (
           <div className="p-10 text-center">
             <p className="text-sm" style={{ color: '#ef4444' }}>{error}</p>
@@ -299,7 +336,7 @@ export default function DatabaseExplorer() {
                           Edit
                         </button>
                         <button
-                          onClick={() => deleteRow(i)}
+                          onClick={() => openDeleteConfirm(i)}
                           className="text-xs font-body hover:underline"
                           style={{ color: '#ef4444' }}
                         >
@@ -314,6 +351,21 @@ export default function DatabaseExplorer() {
           </table>
         )}
       </div>
+
+      {/* Delete confirmation dialog */}
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete Row"
+        message={`Delete row #${deleteTargetIndex !== null ? rows[deleteTargetIndex]?.id : ''} from ${selectedTable}? This cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={deleteRow}
+        onCancel={() => {
+          setDeleteConfirmOpen(false);
+          setDeleteTargetIndex(null);
+        }}
+      />
     </div>
   );
 }

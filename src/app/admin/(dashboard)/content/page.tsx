@@ -2,6 +2,16 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import {
+  SearchBar,
+  Pagination,
+  ExportCSVButton,
+  SortableHeader,
+  ConfirmDialog,
+  SkeletonTable,
+  useSortable,
+  usePagination,
+} from '@/components/AdminShared';
 
 interface Article {
   id: number;
@@ -38,6 +48,11 @@ export default function AdminContentPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
+  const [selectedArticleId, setSelectedArticleId] = useState<number | null>(null);
+
+  const { sortColumn, sortDirection, handleSort, sortData } = useSortable<Article>();
 
   useEffect(() => {
     fetch('/api/articles')
@@ -52,19 +67,63 @@ export default function AdminContentPage() {
       });
   }, []);
 
-  const filteredArticles = activeFilter === 'all'
-    ? articles
-    : articles.filter(a => a.status === activeFilter);
+  const filteredArticles = (() => {
+    let filtered = activeFilter === 'all'
+      ? articles
+      : articles.filter(a => a.status === activeFilter);
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(a =>
+        a.title.toLowerCase().includes(query) ||
+        a.category.toLowerCase().includes(query) ||
+        a.author.toLowerCase().includes(query)
+      );
+    }
+
+    return sortData(filtered);
+  })();
+
+  const { page: currentPage, totalPages, paginatedData: paginatedArticles, setPage: goToPage } = usePagination(filteredArticles, 10);
+
+  const handleArchive = async () => {
+    if (!selectedArticleId) return;
+
+    try {
+      const response = await fetch(`/api/articles/${selectedArticleId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'archived' }),
+      });
+
+      if (response.ok) {
+        setArticles(articles.map(a =>
+          a.id === selectedArticleId ? { ...a, status: 'archived' } : a
+        ));
+        setArchiveDialogOpen(false);
+        setSelectedArticleId(null);
+      }
+    } catch (err) {
+      console.error('Failed to archive article:', err);
+    }
+  };
 
   const pendingCount = articles.filter(a => a.status === 'pending_review').length;
+
+  const exportData = paginatedArticles.map(a => ({
+    Title: a.title,
+    Category: a.category,
+    Author: a.author,
+    Status: statusColors[a.status]?.label || a.status,
+    Date: new Date(a.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+  }));
 
   if (loading) {
     return (
       <div>
         <h1 className="font-display text-3xl font-light tracking-wide text-primary">Content Management</h1>
-        <div className="mt-4 flex items-center gap-3">
-          <div className="w-5 h-5 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--teal)', borderTopColor: 'transparent' }} />
-          <p className="text-secondary text-sm">Loading articles...</p>
+        <div className="mt-8">
+          <SkeletonTable rows={5} columns={7} />
         </div>
       </div>
     );
@@ -112,7 +171,10 @@ export default function AdminContentPage() {
           return (
             <button
               key={filter}
-              onClick={() => setActiveFilter(filter)}
+              onClick={() => {
+                setActiveFilter(filter);
+                goToPage(1);
+              }}
               className="px-4 py-2 rounded-lg text-xs font-body transition-all"
               style={{
                 backgroundColor: activeFilter === filter ? 'var(--teal)' : 'var(--bg-card)',
@@ -126,34 +188,86 @@ export default function AdminContentPage() {
         })}
       </div>
 
-      <div style={{
+      {/* Search Bar and Export */}
+      <div className="flex gap-3 mb-6 flex-wrap items-center">
+        <div className="flex-1 min-w-[250px]">
+          <SearchBar
+            placeholder="Search by title, category, or author..."
+            value={searchQuery}
+            onChange={setSearchQuery}
+          />
+        </div>
+        <ExportCSVButton
+          data={exportData}
+          filename="articles"
+        />
+      </div>
+
+      {/* Table Wrapper */}
+      <div className="admin-table-wrapper" style={{
         backgroundColor: 'var(--bg-card)',
         border: '1px solid var(--border-primary)',
         borderRadius: '16px',
         overflow: 'hidden'
       }}>
-        {filteredArticles.length === 0 ? (
+        {paginatedArticles.length === 0 ? (
           <div className="p-10 text-center" style={{ color: 'var(--text-tertiary)' }}>
-            <p className="text-sm">No articles match this filter.</p>
+            <p className="text-sm">No articles match your search or filter.</p>
           </div>
         ) : (
           <table className="w-full">
             <thead>
               <tr style={{ backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--border-primary)' }}>
-                {['Title', 'Type', 'Category', 'Author', 'Status', 'Date', 'Actions'].map(h => (
-                  <th key={h} className="text-left px-5 py-3 text-[10px] tracking-widest uppercase font-body" style={{ color: 'var(--text-tertiary)' }}>
-                    {h}
-                  </th>
-                ))}
+                <SortableHeader
+                  label="Title"
+                  column="title"
+                  currentSort={sortColumn}
+                  currentDirection={sortDirection}
+                  onSort={handleSort}
+                />
+                <th className="text-left px-5 py-3 text-[10px] tracking-widest uppercase font-body" style={{ color: 'var(--text-tertiary)' }}>
+                  Type
+                </th>
+                <SortableHeader
+                  label="Category"
+                  column="category"
+                  currentSort={sortColumn}
+                  currentDirection={sortDirection}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Author"
+                  column="author"
+                  currentSort={sortColumn}
+                  currentDirection={sortDirection}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Status"
+                  column="status"
+                  currentSort={sortColumn}
+                  currentDirection={sortDirection}
+                  onSort={handleSort}
+                />
+                <SortableHeader
+                  label="Date"
+                  column="createdAt"
+                  currentSort={sortColumn}
+                  currentDirection={sortDirection}
+                  onSort={handleSort}
+                />
+                <th className="text-left px-5 py-3 text-[10px] tracking-widest uppercase font-body" style={{ color: 'var(--text-tertiary)' }}>
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
-              {filteredArticles.map((article, index) => {
+              {paginatedArticles.map((article, index) => {
                 const sc = statusColors[article.status] || statusColors.draft;
                 return (
                   <tr
                     key={article.id}
-                    style={{ borderBottom: index < filteredArticles.length - 1 ? '1px solid var(--border-primary)' : 'none' }}
+                    style={{ borderBottom: index < paginatedArticles.length - 1 ? '1px solid var(--border-primary)' : 'none' }}
                   >
                     <td className="px-5 py-4" style={{ maxWidth: '250px' }}>
                       <p className="text-sm font-body font-medium truncate" style={{ color: 'var(--text-primary)' }}>
@@ -182,12 +296,16 @@ export default function AdminContentPage() {
                       </span>
                     </td>
                     <td className="px-5 py-4">
-                      <span className="text-xs font-body" style={{ color: 'var(--text-tertiary)' }}>
+                      <time
+                        className="text-xs font-body"
+                        dateTime={article.createdAt}
+                        style={{ color: 'var(--text-tertiary)' }}
+                      >
                         {new Date(article.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </span>
+                      </time>
                     </td>
                     <td className="px-5 py-4">
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <a
                           href={`/content/${article.slug}`}
                           target="_blank"
@@ -206,6 +324,18 @@ export default function AdminContentPage() {
                             Review
                           </Link>
                         )}
+                        {article.status === 'published' && (
+                          <button
+                            onClick={() => {
+                              setSelectedArticleId(article.id);
+                              setArchiveDialogOpen(true);
+                            }}
+                            className="text-xs font-body hover:opacity-80"
+                            style={{ color: '#6b7280' }}
+                          >
+                            Archive
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -215,6 +345,32 @@ export default function AdminContentPage() {
           </table>
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-6">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+          />
+        </div>
+      )}
+
+      {/* Archive Confirmation Dialog */}
+      <ConfirmDialog
+        open={archiveDialogOpen}
+        title="Archive Article"
+        message="Are you sure you want to archive this article? It can be restored later."
+        confirmLabel="Archive"
+        cancelLabel="Cancel"
+        variant="warning"
+        onConfirm={handleArchive}
+        onCancel={() => {
+          setArchiveDialogOpen(false);
+          setSelectedArticleId(null);
+        }}
+      />
     </div>
   );
 }

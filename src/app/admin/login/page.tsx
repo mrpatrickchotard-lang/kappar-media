@@ -9,7 +9,40 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showReset, setShowReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetPassword, setResetPassword] = useState('');
+  const [resetting, setResetting] = useState(false);
+  const [resetMsg, setResetMsg] = useState('');
   const router = useRouter();
+
+  const handleReset = async () => {
+    if (!resetEmail || !resetPassword) {
+      setResetMsg('Email and password required');
+      return;
+    }
+    if (resetPassword.length < 8) {
+      setResetMsg('Password must be at least 8 characters');
+      return;
+    }
+    setResetting(true);
+    setResetMsg('');
+    try {
+      const res = await fetch('/api/users/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail, newPassword: resetPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Reset failed');
+      setResetMsg('Password reset success! You can now sign in.');
+      setResetPassword('');
+    } catch (err) {
+      setResetMsg(err instanceof Error ? err.message : 'Reset failed');
+    } finally {
+      setResetting(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -174,8 +207,133 @@ export default function AdminLoginPage() {
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
+
+            {/* Password Reset (AD4) */}
+            <button
+              type="button"
+              onClick={() => setShowReset(true)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-tertiary)',
+                fontSize: '13px',
+                cursor: 'pointer',
+                textAlign: 'center',
+                width: '100%',
+                padding: '8px',
+              }}
+            >
+              Forgot password?
+            </button>
           </div>
         </form>
+
+        {/* Password Reset Modal */}
+        {showReset && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 100,
+              backgroundColor: 'rgba(0,0,0,0.6)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '24px',
+            }}
+            onClick={() => setShowReset(false)}
+          >
+            <div
+              style={{
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border-primary)',
+                borderRadius: '16px',
+                padding: '32px',
+                maxWidth: '400px',
+                width: '100%',
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <h2
+                className="font-display"
+                style={{ color: 'var(--text-primary)', fontSize: '20px', marginBottom: '8px' }}
+              >
+                Reset Password
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '20px' }}>
+                Enter your email and a new password. This resets immediately for admin accounts.
+              </p>
+              {resetMsg && (
+                <div style={{
+                  marginBottom: '16px',
+                  padding: '12px',
+                  backgroundColor: resetMsg.includes('success') ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+                  border: `1px solid ${resetMsg.includes('success') ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                  borderRadius: '8px',
+                  color: resetMsg.includes('success') ? '#16a34a' : '#ef4444',
+                  fontSize: '13px',
+                }}>
+                  {resetMsg}
+                </div>
+              )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label htmlFor="reset-email" style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '6px' }}>Email</label>
+                  <input
+                    id="reset-email"
+                    type="email"
+                    value={resetEmail}
+                    onChange={e => setResetEmail(e.target.value)}
+                    placeholder="admin@kappar.tv"
+                    style={{
+                      width: '100%', padding: '10px 14px', backgroundColor: 'var(--bg-primary)',
+                      border: '1px solid var(--border-primary)', borderRadius: '8px',
+                      color: 'var(--text-primary)', fontSize: '14px', outline: 'none', boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="reset-password" style={{ display: 'block', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '6px' }}>New Password</label>
+                  <input
+                    id="reset-password"
+                    type="password"
+                    value={resetPassword}
+                    onChange={e => setResetPassword(e.target.value)}
+                    placeholder="Min 8 characters"
+                    style={{
+                      width: '100%', padding: '10px 14px', backgroundColor: 'var(--bg-primary)',
+                      border: '1px solid var(--border-primary)', borderRadius: '8px',
+                      color: 'var(--text-primary)', fontSize: '14px', outline: 'none', boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button
+                    onClick={() => setShowReset(false)}
+                    style={{
+                      flex: 1, padding: '10px', borderRadius: '8px', fontSize: '14px',
+                      border: '1px solid var(--border-primary)', backgroundColor: 'transparent',
+                      color: 'var(--text-secondary)', cursor: 'pointer',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleReset}
+                    disabled={resetting}
+                    style={{
+                      flex: 1, padding: '10px', borderRadius: '8px', fontSize: '14px',
+                      border: 'none', backgroundColor: 'var(--teal)', color: 'white',
+                      cursor: resetting ? 'not-allowed' : 'pointer', opacity: resetting ? 0.5 : 1,
+                    }}
+                  >
+                    {resetting ? 'Resetting...' : 'Reset Password'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

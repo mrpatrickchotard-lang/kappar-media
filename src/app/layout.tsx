@@ -62,6 +62,14 @@ export default function RootLayout({
         `}} />
       </head>
       <body className="antialiased min-h-screen" suppressHydrationWarning style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+        {/* Skip to content link for keyboard accessibility (A1) */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-6 focus:py-3 focus:rounded-xl focus:text-sm focus:font-body"
+          style={{ backgroundColor: 'var(--teal)', color: '#fff' }}
+        >
+          Skip to content
+        </a>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
@@ -71,7 +79,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}
         />
         <Header />
-        <main>
+        <main id="main-content">
           {children}
         </main>
         <Footer />

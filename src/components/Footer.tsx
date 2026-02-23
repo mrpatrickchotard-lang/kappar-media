@@ -89,9 +89,9 @@ export function Footer() {
                     backgroundColor: 'rgba(42,138,122,0.08)',
                     border: '1px solid var(--border-primary)',
                   }}
-                  title={social.label}
+                  aria-label={`Follow us on ${social.label}`}
                 >
-                  {social.icon}
+                  <span aria-hidden="true">{social.icon}</span>
                 </a>
               ))}
             </div>

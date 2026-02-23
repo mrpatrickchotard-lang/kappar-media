@@ -1,11 +1,17 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Josefin+Sans:wght@100;200;300;400;500;600;700&display=swap');
 
-/* Global focus-visible styles for keyboard accessibility */
+/* Global focus-visible styles for keyboard accessibility (A5: enhanced visibility) */
 *:focus-visible {
-  outline: 2px solid var(--teal);
-  outline-offset: 2px;
+  outline: 3px solid var(--teal);
+  outline-offset: 3px;
   border-radius: 4px;
+}
+
+/* Ensure focus ring is visible in dark mode (A5) */
+[data-theme="dark"] *:focus-visible {
+  outline-color: var(--teal-light, #3aaa9a);
+  box-shadow: 0 0 0 6px rgba(58, 170, 154, 0.2);
 }
 
 /* Screen reader only utility */
@@ -318,6 +324,81 @@ body {
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
+}
+
+/* Respect prefers-reduced-motion (A9) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .hero-gradient-animate,
+  .hero-orb,
+  .hero-orb-1,
+  .hero-orb-2,
+  .hero-orb-3 {
+    animation: none !important;
+  }
+}
+
+/* Link hover underlines for visibility (U5) */
+footer a:hover,
+footer a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Skip-to-content visible state */
+.sr-only:focus {
+  position: fixed !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 12px 24px !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+/* Skeleton loader animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-secondary) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* Admin table responsive wrapper (AD20) */
+.admin-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.admin-table-wrapper::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+.admin-table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: 3px;
+}
+
+/* Disabled button state (Sprint 4) */
+button:disabled,
+a[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* Selection color */

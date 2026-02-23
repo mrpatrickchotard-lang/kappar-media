@@ -25,9 +25,9 @@ export default async function HomePage() {
         {/* Animated background */}
         <div className="absolute inset-0" style={{ background: 'var(--bg-primary)' }}>
           <div className="hero-gradient-animate absolute inset-0"></div>
-          <div className="hero-orb hero-orb-1 absolute w-[500px] h-[500px] rounded-full blur-3xl"></div>
-          <div className="hero-orb hero-orb-2 absolute w-[400px] h-[400px] rounded-full blur-3xl"></div>
-          <div className="hero-orb hero-orb-3 absolute w-[300px] h-[300px] rounded-full blur-3xl"></div>
+          <div className="hero-orb hero-orb-1 absolute w-[500px] h-[500px] rounded-full blur-3xl" aria-hidden="true"></div>
+          <div className="hero-orb hero-orb-2 absolute w-[400px] h-[400px] rounded-full blur-3xl" aria-hidden="true"></div>
+          <div className="hero-orb hero-orb-3 absolute w-[300px] h-[300px] rounded-full blur-3xl" aria-hidden="true"></div>
         </div>
 
         <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-8 text-center">
@@ -39,7 +39,7 @@ export default async function HomePage() {
             Forward Media
           </p>
 
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-light tracking-wide mb-8" style={{ color: 'var(--text-primary)' }}>
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light tracking-wide mb-8" style={{ color: 'var(--text-primary)' }}>
             KAPPAR
           </h1>
 

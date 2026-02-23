@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { Logo } from './Logo';
 import { ThemeToggle } from './ThemeToggle';
@@ -19,6 +19,8 @@ const navLinks = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -35,16 +37,35 @@ export function Header() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileMenuOpen]);
 
-  // Close mobile menu on Escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false);
+  // Focus trap for mobile menu (A6)
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape' && mobileMenuOpen) {
+      setMobileMenuOpen(false);
+      menuButtonRef.current?.focus();
+      return;
+    }
+
+    if (e.key === 'Tab' && mobileMenuOpen && menuRef.current) {
+      const focusableElements = menuRef.current.querySelectorAll(
+        'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstElement = focusableElements[0] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement?.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement?.focus();
       }
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
+    }
   }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
@@ -61,15 +82,15 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-4">
+          <Link href="/" className="flex items-center gap-4" aria-label="Kappar Media - Home">
             <Logo variant="teal" size={40} />
-            <span className="hidden sm:inline font-display text-xl font-light tracking-[0.35em] uppercase" style={{ color: 'var(--text-primary)' }}>
+            <span className="hidden sm:inline font-display text-xl font-light tracking-[0.35em] uppercase" style={{ color: 'var(--text-primary)' }} aria-hidden="true">
               KAPPAR
             </span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-8" aria-label="Main navigation">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -78,12 +99,14 @@ export function Header() {
                 style={{
                   color: isActive(link.href) ? 'var(--teal)' : 'var(--text-secondary)',
                 }}
+                aria-current={isActive(link.href) ? 'page' : undefined}
               >
                 {link.label}
                 {isActive(link.href) && (
                   <span
                     className="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full"
                     style={{ backgroundColor: 'var(--teal)' }}
+                    aria-hidden="true"
                   />
                 )}
               </Link>
@@ -100,30 +123,37 @@ export function Header() {
             </div>
           </nav>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button — 48x48 touch target (R3) */}
           <div className="md:hidden flex items-center gap-3">
             <ThemeToggle />
             <button
-              className="relative w-10 h-10 flex items-center justify-center"
+              ref={menuButtonRef}
+              className="relative w-12 h-12 flex items-center justify-center rounded-lg"
               style={{ color: 'var(--text-primary)' }}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
             >
-              <span className={`mobile-hamburger-line top-[13px] ${mobileMenuOpen ? 'rotate-45 !top-[18px]' : ''}`}></span>
-              <span className={`mobile-hamburger-line top-[18px] ${mobileMenuOpen ? 'opacity-0 scale-x-0' : ''}`}></span>
-              <span className={`mobile-hamburger-line top-[23px] ${mobileMenuOpen ? '-rotate-45 !top-[18px]' : ''}`}></span>
+              <span className={`mobile-hamburger-line top-[15px] ${mobileMenuOpen ? 'rotate-45 !top-[22px]' : ''}`} aria-hidden="true"></span>
+              <span className={`mobile-hamburger-line top-[22px] ${mobileMenuOpen ? 'opacity-0 scale-x-0' : ''}`} aria-hidden="true"></span>
+              <span className={`mobile-hamburger-line top-[29px] ${mobileMenuOpen ? '-rotate-45 !top-[22px]' : ''}`} aria-hidden="true"></span>
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu with slide animation */}
+        {/* Mobile Menu with slide animation + focus trap (A6) */}
         <div
+          id="mobile-menu"
+          ref={menuRef}
+          role="dialog"
+          aria-modal={mobileMenuOpen ? "true" : undefined}
+          aria-label="Mobile navigation"
           className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
             mobileMenuOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          <nav className="py-6" style={{ borderTop: '1px solid var(--border-primary)' }}>
+          <nav className="py-6" style={{ borderTop: '1px solid var(--border-primary)' }} aria-label="Mobile navigation">
             <div className="flex flex-col gap-1">
               {navLinks.map((link, i) => (
                 <Link
@@ -138,6 +168,8 @@ export function Header() {
                     opacity: mobileMenuOpen ? 1 : 0,
                   }}
                   onClick={() => setMobileMenuOpen(false)}
+                  tabIndex={mobileMenuOpen ? 0 : -1}
+                  aria-current={isActive(link.href) ? 'page' : undefined}
                 >
                   {link.label}
                 </Link>
@@ -153,6 +185,7 @@ export function Header() {
                   opacity: mobileMenuOpen ? 1 : 0,
                 }}
                 onClick={() => setMobileMenuOpen(false)}
+                tabIndex={mobileMenuOpen ? 0 : -1}
               >
                 Subscribe
               </Link>

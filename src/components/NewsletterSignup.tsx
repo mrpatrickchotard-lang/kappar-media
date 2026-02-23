@@ -37,7 +37,7 @@ export function NewsletterSignup() {
   return (
     <section className="relative py-28 overflow-hidden" style={{ background: 'var(--accent-primary)' }}>
       {/* Decorative background elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
         <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full" style={{ background: 'rgba(58,170,154,0.15)' }}></div>
         <div className="absolute -bottom-16 -left-16 w-60 h-60 rounded-full" style={{ background: 'rgba(26,106,90,0.3)' }}></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full" style={{ background: 'rgba(42,138,122,0.08)', border: '1px solid rgba(245,243,239,0.05)' }}></div>
